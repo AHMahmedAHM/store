@@ -1,0 +1,792 @@
+{% extends 'base.html' %}
+
+{% block title %}طلباتي - AHM متجر{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* نفس متغيرات الألوان من الصفحات السابقة */
+    :root {
+        --primary-color: #d4a853;
+        --primary-hover: #b88d3f;
+        --primary-light: #f5e6d3;
+        --dark-bg: #1e2a3a;
+        --text-dark: #2c3e50;
+        --text-muted: #6c757d;
+        --border-light: #e9ecef;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #e6b17e;
+        --info-color: #17a2b8;
+        --bg-light: #f8f9fa;
+    }
+
+    /* حاوية الصفحة الرئيسية */
+    .orders-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    /* عنوان الصفحة */
+    .page-title {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .page-title h1 {
+        font-size: 2.5em;
+        color: var(--dark-bg);
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+
+    .page-title h1:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: var(--primary-color);
+        border-radius: 3px;
+    }
+
+    .page-title p {
+        color: var(--text-muted);
+        font-size: 1.1em;
+        margin-top: 20px;
+    }
+
+    /* بطاقة الطلب */
+    .order-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border-light);
+        margin-bottom: 25px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+    }
+
+    .order-card:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        transform: translateY(-3px);
+        border-color: var(--primary-light);
+    }
+
+    /* رأس بطاقة الطلب */
+    .order-header {
+        background: linear-gradient(135deg, var(--dark-bg) 0%, #2c3e50 100%);
+        color: white;
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .order-header:hover {
+        background: linear-gradient(135deg, #2c3e50 0%, var(--dark-bg) 100%);
+    }
+
+    .order-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .order-id {
+        font-size: 1.2em;
+        font-weight: 700;
+        background: rgba(255,255,255,0.2);
+        padding: 5px 15px;
+        border-radius: 50px;
+    }
+
+    .order-date {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9em;
+        opacity: 0.9;
+    }
+
+    .order-total {
+        font-size: 1.3em;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    /* حالة الطلب */
+    .order-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.9em;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #f39c12;
+    }
+
+    .status-paid {
+        background: rgba(40, 167, 69, 0.2);
+        color: var(--success-color);
+    }
+
+    .status-delivered {
+        background: rgba(23, 162, 184, 0.2);
+        color: var(--info-color);
+    }
+
+    .status-cancelled {
+        background: rgba(220, 53, 69, 0.2);
+        color: var(--danger-color);
+    }
+
+    /* سهم التوسيع */
+    .expand-icon {
+        transition: transform 0.3s ease;
+        font-size: 1.2em;
+    }
+
+    .expand-icon.rotated {
+        transform: rotate(180deg);
+    }
+
+    /* محتوى الطلب (قابل للطي) */
+    .order-body {
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-out, padding 0.3s ease;
+    }
+
+    .order-body.expanded {
+        max-height: 2000px;
+        padding: 25px;
+        border-top: 1px solid var(--border-light);
+    }
+
+    /* جدول المنتجات */
+    .products-table {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .products-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .products-table th {
+        background: var(--bg-light);
+        padding: 12px 15px;
+        font-weight: 600;
+        color: var(--dark-bg);
+        border-bottom: 2px solid var(--border-light);
+        text-align: center;
+    }
+
+    .products-table td {
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--border-light);
+        text-align: center;
+        color: var(--text-dark);
+    }
+
+    .product-name {
+        font-weight: 600;
+        color: var(--dark-bg);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .product-name:hover {
+        color: var(--primary-color);
+    }
+
+    /* معلومات إضافية */
+    .order-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-light);
+    }
+
+    .detail-card {
+        background: var(--bg-light);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border-light);
+    }
+
+    .detail-card h6 {
+        font-size: 1em;
+        font-weight: 700;
+        color: var(--dark-bg);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .detail-card h6 i {
+        color: var(--primary-color);
+    }
+
+    .detail-card p {
+        margin: 5px 0;
+        color: var(--text-muted);
+        font-size: 0.9em;
+        line-height: 1.5;
+    }
+
+    /* حالة عدم وجود طلبات */
+    .no-orders {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border-light);
+        max-width: 600px;
+        margin: 50px auto;
+    }
+
+    .no-orders-icon {
+        font-size: 5em;
+        color: var(--primary-color);
+        opacity: 0.3;
+        margin-bottom: 20px;
+    }
+
+    .no-orders h2 {
+        font-size: 2em;
+        color: var(--dark-bg);
+        margin-bottom: 15px;
+    }
+
+    .no-orders p {
+        font-size: 1.1em;
+        color: var(--text-muted);
+        margin-bottom: 30px;
+    }
+
+    .btn-shop {
+        background: var(--primary-color);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-shop:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
+        color: white;
+    }
+
+    /* إحصائيات سريعة */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-color);
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.1);
+    }
+
+    .stat-number {
+        font-size: 2.5em;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: block;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
+
+    /* تحسينات للشاشات الصغيرة */
+    @media (max-width: 768px) {
+        .page-title h1 {
+            font-size: 2em;
+        }
+
+        .order-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .order-info {
+            justify-content: center;
+        }
+
+        .order-status {
+            width: fit-content;
+            margin: 0 auto;
+        }
+
+        .products-table {
+            overflow-x: auto;
+            display: block;
+        }
+
+        .products-table table {
+            min-width: 500px;
+        }
+
+        .order-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .order-id {
+            font-size: 1em;
+        }
+
+        .order-total {
+            font-size: 1.1em;
+        }
+
+        .stat-number {
+            font-size: 2em;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    /* ===== أزرار إجراءات الطلب ===== */
+.order-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-light);
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95em;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    background: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-form {
+    display: inline-block;
+    margin: 0;
+}
+
+/* زر الدعم */
+.support-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+}
+
+.support-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+    color: white;
+}
+
+.support-btn i {
+    font-size: 1.2em;
+}
+
+/* زر الإلغاء */
+.cancel-btn {
+    background: white;
+    color: var(--danger-color);
+    border: 2px solid var(--danger-color);
+}
+
+.cancel-btn:hover {
+    background: var(--danger-color);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+}
+
+.cancel-btn i {
+    font-size: 1.2em;
+    transition: all 0.3s ease;
+}
+
+.cancel-btn:hover i {
+    transform: rotate(90deg);
+}
+
+/* زر الدفع */
+.payment-btn {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 5px 15px rgba(212, 168, 83, 0.3);
+}
+
+.payment-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(212, 168, 83, 0.4);
+    color: white;
+}
+
+.payment-btn i:first-child {
+    font-size: 1.2em;
+}
+
+.payment-btn i:last-child {
+    transition: transform 0.3s ease;
+}
+
+.payment-btn:hover i:last-child {
+    transform: translateX(-5px);
+}
+
+/* تأثيرات إضافية */
+.action-btn:active {
+    transform: translateY(1px);
+}
+
+/* تأثير نبض لزر الدفع */
+@keyframes pulse-payment {
+    0%, 100% {
+        box-shadow: 0 5px 15px rgba(212, 168, 83, 0.3);
+    }
+    50% {
+        box-shadow: 0 5px 25px rgba(212, 168, 83, 0.6);
+    }
+}
+
+.payment-btn {
+    animation: pulse-payment 2s infinite;
+}
+
+.payment-btn:hover {
+    animation: none;
+}
+
+/* تحسين للشاشات الصغيرة */
+@media (max-width: 576px) {
+    .order-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .action-btn,
+    .action-form {
+        width: 100%;
+    }
+    
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+    <!-- عنوان الصفحة -->
+    <div class="page-title">
+        <h1>
+            <i class="bi bi-box-seam" style="color: var(--primary-color);"></i>
+            طلباتي
+        </h1>
+        <p>جميع طلباتك السابقة والحالية في مكان واحد</p>
+    </div>
+
+    {% if orders %}
+    <!-- إحصائيات سريعة -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-number">{{ orders.count }}</span>
+            <span class="stat-label">إجمالي الطلبات</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ orders_pending|length }}</span>
+            <span class="stat-label">قيد المعالجة</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{  orders_delivered.count }} </span>
+            <span class="stat-label">تم التوصيل</span>
+        </div>
+     
+    </div>
+
+    <!-- قائمة الطلبات -->
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card" data-order-id="{{ order.id }}">
+            <!-- رأس الطلب (قابل للنقر) -->
+            <div class="order-header" onclick="toggleOrder({{ order.id }})">
+                <div class="order-info">
+                    <span class="order-id">
+                        <i class="bi bi-hash"></i>
+                        طلب #{{ forloop.revcounter }}
+                    </span>
+                    <span class="order-date">
+                        <i class="bi bi-calendar3"></i>
+                        {{ order.created_at|date:"Y/m/d" }}
+                    </span>
+                    <span class="order-date">
+                        <i class="bi bi-clock"></i>
+                        {{ order.created_at|time:"H:i" }}
+                    </span>
+                    <span class="order-total">
+                        {{ order.get_total_cost|floatformat:2 }} جنيه
+                    </span>
+                </div>
+                
+                <div class="order-status 
+                    {% if order.status == 'pending' %}status-pending
+                    {% elif order.status == 'paid' %}status-paid
+                    {% elif order.status == 'delivered' %}status-delivered
+                    {% elif order.status == 'cancelled' %}status-cancelled
+                    {% endif %}">
+                    
+                    <i class="bi 
+                        {% if order.status == 'pending' %}bi-clock-history
+                        {% elif order.status == 'paid' %}bi-check-circle-fill
+                        {% elif order.status == 'delivered' %}bi-truck
+                        {% elif order.status == 'cancelled' %}bi-x-circle-fill
+                        {% endif %}"></i>
+                    
+                    <span>
+                        {% if order.status == 'pending' %}
+                            قيد المراجعة
+                        {% elif order.status == 'paid' %}
+                            تم الدفع
+                        {% elif order.status == 'delivered' %}
+                            تم التوصيل
+                        {% elif order.status == 'cancelled' %}
+                            ملغي
+                        {% else %}
+                            {{ order.status }}
+                        {% endif %}
+                    </span>
+                    
+                    <i class="bi bi-chevron-down expand-icon" id="icon-{{ order.id }}"></i>
+                </div>
+            </div>
+            
+            <!-- محتوى الطلب (قابل للطي) -->
+            <div class="order-body" id="body-{{ order.id }}">
+                <!-- جدول المنتجات -->
+                <div class="products-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المنتج</th>
+                                <th>الكمية</th>
+                                <th>السعر</th>
+                                <th>الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>
+                                    <a href="{{ item.product.get_absolute_url }}" class="product-name">
+                                        {{ item.product.name }}
+                                    </a>
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.price|floatformat:2 }} جنيه</td>
+                                <td>{{ item.get_cost|floatformat:2 }} جنيه</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr style="background: var(--primary-light);">
+                                <th colspan="3" class="text-start">الإجمالي الكلي:</th>
+                                <th>{{ order.get_total_cost|floatformat:2 }} جنيه</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <!-- معلومات إضافية -->
+                <div class="order-details-grid">
+                    <div class="detail-card">
+                        <h6><i class="bi bi-geo-alt-fill"></i> عنوان الشحن</h6>
+                        <p>{{ order.address }}</p>
+                        <p class="mb-0"><i class="bi bi-building"></i> {{ order.city }}</p>
+                    </div>
+                    <div class="detail-card">
+                        <h6><i class="bi bi-person-fill"></i> معلومات العميل</h6>
+                        <p><i class="bi bi-person"></i> {{ order.user.firstname }} {{ order.user.last_name }}</p>
+                        <p><i class="bi bi-envelope"></i> {{ order.user.email }}</p>
+                        <p class="mb-0"><i class="bi bi-phone"></i> {{ order.phone }}</p>
+                    </div>
+                    <div class="detail-card">
+                        <h6><i class="bi bi-truck"></i> معلومات الشحن</h6>
+                        <p><i class="bi bi-calendar-week"></i> تاريخ الطلب: {{ order.created_at|date:"Y/m/d" }}</p>
+                        <p class="mb-0">
+                            <i class="bi {% if order.status == 'delivered' %}bi-check-circle{% else %}bi-clock{% endif %}"></i>
+                            الحالة: {% if order.status == 'pending' %}جاري التجهيز
+                            {% elif order.status == 'paid' %}تم الدفع وجاري الشحن
+                            {% elif order.status == 'delivered' %}تم التوصيل
+                            {% elif order.status == 'failed' %}فشل الطلب
+                            {% elif order.status == 'shipped' %}  تم الشحن برجاء الانتظار والمتابعة
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <!-- أزرار إضافية (للطلبات الجارية) -->
+{% if order.status == 'pending' %}
+<div class="order-actions">
+    <!-- زر التواصل مع الدعم -->
+    <a href="#" class="action-btn support-btn">
+        <i class="bi bi-headset"></i>
+        <span>تواصل مع الدعم</span>
+    </a>
+    
+    <!-- زر إلغاء الطلب -->
+    <form method="POST" action="{% url 'orders:order_cancel' order.id %}" class="action-form">
+        {% csrf_token %}
+        <button type="submit" class="action-btn cancel-btn" onclick="return confirm('هل أنت متأكد من إلغاء هذا الطلب؟')">
+            <i class="bi bi-x-octagon"></i>
+            <span>إلغاء الطلب</span>
+        </button>
+    </form>
+    
+    <!-- زر استكمال الدفع (الأساسي) -->
+    <a href="{% url 'orders:order_confirm' %}" class="action-btn payment-btn">
+        <i class="bi bi-credit-card"></i>
+        <span>استكمال الدفع</span>
+        <i class="bi bi-arrow-left"></i>
+    </a>
+</div>
+{% endif %}
+            </div>
+        </div>
+        
+             
+
+             {% endfor %} 
+    </div>
+    
+    {% else %}
+    <!-- لا توجد طلبات -->
+    <div class="no-orders">
+        <div class="no-orders-icon">
+            <i class="bi bi-inbox"></i>
+        </div>
+        <h2>لا توجد طلبات بعد</h2>
+        <p>لم تقم بإجراء أي طلبات حتى الآن. ابدأ التسوق الآن!</p>
+        <a href="{% url 'products:list' %}" class="btn-shop">
+            <i class="bi bi-bag-heart"></i>
+            ابدأ التسوق الآن
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // دالة لتوسيع/طي تفاصيل الطلب
+    function toggleOrder(orderId) {
+        const body = document.getElementById(`body-${orderId}`);
+        const icon = document.getElementById(`icon-${orderId}`);
+        
+        if (body.classList.contains('expanded')) {
+            body.classList.remove('expanded');
+            icon.classList.remove('rotated');
+        } else {
+            body.classList.add('expanded');
+            icon.classList.add('rotated');
+        }
+    }
+    
+    // فتح أول طلب بشكل افتراضي (اختياري)
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstOrder = document.querySelector('.order-card');
+        if (firstOrder) {
+            const orderId = firstOrder.getAttribute('data-order-id');
+            // يمكن فتح أول طلب تلقائياً
+            // if (orderId) toggleOrder(orderId);
+        }
+    });
+</script>
+
+<style>
+    .btn-outline-secondary-custom {
+        background: white;
+        color: var(--text-muted);
+        border: 2px solid var(--border-light);
+        padding: 12px 30px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .btn-outline-secondary-custom:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

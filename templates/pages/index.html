@@ -1,0 +1,790 @@
+{% extends 'base.html' %}
+
+{% block title %}الرئيسية - AHM متجر{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* نفس متغيرات الألوان من الصفحات السابقة */
+    :root {
+        --primary-color: #d4a853;
+        --primary-hover: #b88d3f;
+        --primary-light: #f5e6d3;
+        --dark-bg: #1e2a3a;
+        --text-dark: #2c3e50;
+        --text-muted: #6c757d;
+        --border-light: #e9ecef;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #e6b17e;
+        --bg-light: #f8f9fa;
+    }
+
+    /* ===== قسم الهيرو (Hero Section) ===== */
+    .hero-section {
+        background: linear-gradient(135deg, var(--dark-bg) 0%, #2c3e50 100%);
+        padding: 80px 20px;
+        border-radius: 0 0 50px 50px;
+        margin-bottom: 60px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><path d="M20 20 L80 20 L80 80 L20 80 Z" fill="none" stroke="%23d4a853" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="none" stroke="%23d4a853" stroke-width="2"/></svg>');
+        background-size: 60px;
+        animation: rotate 60s linear infinite;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+        color: white;
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-content h1 {
+        font-size: 3.5em;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .hero-content h1 span {
+        color: var(--primary-color);
+        display: inline-block;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .hero-content p {
+        font-size: 1.3em;
+        margin-bottom: 30px;
+        opacity: 0.9;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary-custom {
+        background: var(--primary-color);
+        color: white;
+        padding: 15px 40px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1em;
+        transition: all 0.3s ease;
+        border: 2px solid var(--primary-color);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-primary-custom:hover {
+        background: transparent;
+        color: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
+    }
+
+    .btn-outline-custom {
+        background: transparent;
+        color: white;
+        padding: 15px 40px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1em;
+        transition: all 0.3s ease;
+        border: 2px solid white;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-outline-custom:hover {
+        background: white;
+        color: var(--dark-bg);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255,255,255,0.2);
+    }
+
+    /* ===== قسم المميزات (Features) ===== */
+    .features-section {
+        padding: 60px 20px;
+        background: white;
+        margin-bottom: 60px;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .section-title h2 {
+        font-size: 2.5em;
+        color: var(--dark-bg);
+        margin-bottom: 15px;
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+    }
+
+    .section-title h2:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: var(--primary-color);
+        border-radius: 3px;
+    }
+
+    .section-title p {
+        color: var(--text-muted);
+        font-size: 1.2em;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .feature-card {
+        text-align: center;
+        padding: 40px 30px;
+        background: var(--bg-light);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary-color);
+        box-shadow: 0 15px 35px rgba(212, 168, 83, 0.1);
+    }
+
+    .feature-icon {
+        width: 100px;
+        height: 100px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        font-size: 2.5em;
+        color: var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+        background: var(--primary-color);
+        color: white;
+        transform: rotateY(180deg);
+    }
+
+    .feature-card h3 {
+        font-size: 1.4em;
+        color: var(--dark-bg);
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .feature-card p {
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
+    /* ===== قسم أحدث المنتجات ===== */
+    .latest-products-section {
+        padding: 60px 20px;
+        background: var(--bg-light);
+        margin-bottom: 60px;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+        max-width: 1400px;
+        margin: 40px auto;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(212, 168, 83, 0.15);
+        border-color: var(--primary-color);
+    }
+
+    .product-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.1);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--primary-color);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 25px;
+        font-size: 0.9em;
+        font-weight: 600;
+        box-shadow: 0 3px 10px rgba(212, 168, 83, 0.3);
+        z-index: 2;
+    }
+
+    .product-badge.out-of-stock {
+        background: var(--danger-color);
+    }
+
+    .product-info {
+        padding: 20px;
+    }
+
+    .product-info h3 {
+        margin: 0 0 10px;
+        font-size: 1.2em;
+    }
+
+    .product-info h3 a {
+        color: var(--dark-bg);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        font-weight: 600;
+    }
+
+    .product-info h3 a:hover {
+        color: var(--primary-color);
+    }
+
+    .product-description {
+        color: var(--text-muted);
+        font-size: 0.9em;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+
+    .product-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 15px 0;
+        padding: 10px 0;
+        border-top: 1px solid var(--border-light);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .product-price {
+        font-size: 1.3em;
+        font-weight: 700;
+        color: var(--success-color);
+    }
+
+    .stock-status {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9em;
+    }
+
+    .stock-status.in-stock {
+        color: var(--success-color);
+    }
+
+    .stock-status.low-stock {
+        color: var(--warning-color);
+    }
+
+    .stock-status.out-stock {
+        color: var(--danger-color);
+    }
+
+    .product-link {
+        display: block;
+        text-align: center;
+        padding: 12px;
+        background: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .product-link:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 168, 83, 0.3);
+    }
+
+    .view-all-link {
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    .btn-view-all {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 40px;
+        background: white;
+        color: var(--primary-color);
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1em;
+        transition: all 0.3s ease;
+        border: 2px solid var(--primary-color);
+    }
+
+    .btn-view-all:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
+    }
+
+    /* ===== قسم العروض المميزة ===== */
+    .offers-section {
+        padding: 60px 20px;
+        background: linear-gradient(135deg, var(--primary-light) 0%, white 100%);
+        margin-bottom: 60px;
+    }
+
+    .offers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1200px;
+        margin: 40px auto;
+    }
+
+    .offer-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+    }
+
+    .offer-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary-color);
+        box-shadow: 0 20px 40px rgba(212, 168, 83, 0.15);
+    }
+
+    .offer-icon {
+        font-size: 3.5em;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+    }
+
+    .offer-card h3 {
+        font-size: 1.8em;
+        color: var(--dark-bg);
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .offer-card p {
+        color: var(--text-muted);
+        margin-bottom: 25px;
+        line-height: 1.6;
+    }
+
+    .offer-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .offer-link:hover {
+        color: var(--primary-hover);
+        gap: 12px;
+    }
+
+    /* ===== قسم النشرة البريدية ===== */
+    .newsletter-section {
+        padding: 80px 20px;
+        background: var(--dark-bg);
+        border-radius: 50px 50px 0 0;
+        margin-top: 60px;
+    }
+
+    .newsletter-content {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: center;
+        color: white;
+    }
+
+    .newsletter-content h2 {
+        font-size: 2.5em;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .newsletter-content p {
+        font-size: 1.2em;
+        margin-bottom: 30px;
+        opacity: 0.9;
+    }
+
+    .newsletter-form {
+        display: flex;
+        gap: 10px;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .newsletter-input {
+        flex: 1;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1em;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .newsletter-input:focus {
+        box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.3);
+    }
+
+    .newsletter-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 15px 30px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .newsletter-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
+    }
+
+    /* تحسينات للشاشات الصغيرة */
+    @media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 2.5em;
+        }
+
+        .hero-content p {
+            font-size: 1.1em;
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-primary-custom,
+        .btn-outline-custom {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .section-title h2 {
+            font-size: 2em;
+        }
+
+        .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+
+        .newsletter-form {
+            flex-direction: column;
+        }
+
+        .newsletter-btn {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-content h1 {
+            font-size: 2em;
+        }
+
+        .feature-card {
+            padding: 30px 20px;
+        }
+
+        .offer-card {
+            padding: 30px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ===== قسم الهيرو ===== -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1>
+            مرحباً بك في <span>AHM</span>
+        </h1>
+        <p>اكتشف أحدث المنتجات بأفضل الأسعار وجودة عالية وتوصيل سريع لجميع أنحاء الجمهورية</p>
+        <div class="hero-buttons">
+            <a href="{% url 'products:list' %}" class="btn-primary-custom">
+                <i class="bi bi-grid"></i>
+                تصفح المنتجات
+            </a>
+            <a href="#" class="btn-outline-custom">
+                <i class="bi bi-percent"></i>
+                العروض الحصرية
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== قسم المميزات ===== -->
+<section class="features-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>لماذا تختار AHM؟</h2>
+            <p>نقدم لك أفضل تجربة تسوق إلكتروني في مصر</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-truck"></i>
+                </div>
+                <h3>توصيل سريع</h3>
+                <p>نوصل طلبك لباب البيت في خلال 2-3 أيام عمل بحد أقصى</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h3>منتجات أصلية</h3>
+                <p>نضمن لك منتجات أصلية 100% بضمان استعادة الأموال</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-credit-card"></i>
+                </div>
+                <h3>دفع آمن</h3>
+                <p>طرق دفع متعددة وآمنة مع تشفير كامل للبيانات</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <h3>دعم فني 24/7</h3>
+                <p>فريق دعم متاح على مدار الساعة لمساعدتك في أي استفسار</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== قسم أحدث المنتجات ===== -->
+<section class="latest-products-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>أحدث المنتجات</h2>
+            <p>اكتشف أحدث المنتجات المضافة إلى متجرنا</p>
+        </div>
+        
+        {% if latest_products %}
+        <div class="products-grid">
+            {% for product in latest_products %}
+            <div class="product-card">
+                <div class="product-image">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x200?text=لا+توجد+صورة" alt="لا توجد صورة">
+                    {% endif %}
+                    
+                    {% if product.stock <= 5 and product.stock > 0 %}
+                        <span class="product-badge">متبقي {{ product.stock }} فقط</span>
+                    {% elif product.stock == 0 %}
+                        <span class="product-badge out-of-stock">نفذ من المخزون</span>
+                    {% endif %}
+                </div>
+                
+                <div class="product-info">
+                    <h3>
+                        <a href="{{ product.get_absolute_url }}">{{ product.name|truncatechars:25 }}</a>
+                    </h3>
+                    
+                    {% if product.description %}
+                        <p class="product-description">{{ product.description|truncatechars:50 }}</p>
+                    {% endif %}
+                    
+                    <div class="product-details">
+                        <span class="product-price">{{ product.price }} جنيه</span>
+                        
+                        <div class="stock-status {% if product.stock > 5 %}in-stock{% elif product.stock > 0 %}low-stock{% else %}out-stock{% endif %}">
+                            <i class="bi {% if product.stock > 0 %}bi-check-circle-fill{% else %}bi-x-circle-fill{% endif %}"></i>
+                            <span>
+                                {% if product.stock > 0 %}
+                                    {{ product.stock }} قطعة
+                                {% else %}
+                                    غير متوفر
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ product.get_absolute_url }}" class="product-link">
+                        <i class="bi bi-eye"></i>
+                        عرض التفاصيل
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="view-all-link">
+            <a href="{% url 'products:list' %}" class="btn-view-all">
+                <i class="bi bi-arrow-left"></i>
+                عرض جميع المنتجات
+                <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        {% else %}
+        <div class="no-products">
+            <i class="bi bi-box-seam"></i>
+            <h3>لا توجد منتجات حالياً</h3>
+            <p>سيتم إضافة منتجات قريباً</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ===== قسم العروض المميزة ===== -->
+<section class="offers-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>عروض مميزة</h2>
+            <p>استفد من أفضل العروض والخصومات الحصرية</p>
+        </div>
+        
+        <div class="offers-grid">
+            <div class="offer-card">
+                <div class="offer-icon">
+                    <i class="bi bi-gift"></i>
+                </div>
+                <h3>خصم 20%</h3>
+                <p>على أول طلبية لك عند التسجيل في النشرة البريدية</p>
+                <a href="#" class="offer-link">
+                    احصل على العرض
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+            </div>
+            
+            <div class="offer-card">
+                <div class="offer-icon">
+                    <i class="bi bi-truck"></i>
+                </div>
+                <h3>توصيل مجاني</h3>
+                <p>عند شراء بقيمة 500 جنيه أو أكثر</p>
+                <a href="#" class="offer-link">
+                    تسوق الآن
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+            </div>
+            
+            <div class="offer-card">
+                <div class="offer-icon">
+                    <i class="bi bi-star"></i>
+                </div>
+                <h3>برنامج الولاء</h3>
+                <p>اجمع النقاط واستبدلها بمنتجات مجانية</p>
+                <a href="#" class="offer-link">
+                    اعرف المزيد
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== قسم النشرة البريدية ===== -->
+<section class="newsletter-section">
+    <div class="newsletter-content">
+        <h2>اشترك في النشرة البريدية</h2>
+        <p>احصل على أحدث العروض والمنتجات الجديدة أول بأول</p>
+        
+        <form class="newsletter-form">
+            <input type="email" class="newsletter-input" placeholder="أدخل بريدك الإلكتروني" required>
+            <button type="submit" class="newsletter-btn">
+                <i class="bi bi-send"></i>
+                اشتراك
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

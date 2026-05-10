@@ -1,0 +1,941 @@
+{% extends 'base.html' %}
+
+{% block title %}منتجاتنا - AHM متجر{% endblock %}
+
+{% block extra_css %}
+<style>
+     
+    /* جميع الـ CSS بتاع الفلتر */
+    :root {
+        --primary-color: #d4a853;
+        --primary-hover: #b88d3f;
+        --primary-light: #f5e6d3;
+        --dark-bg: #1e2a3a;
+        --text-muted: #6c757d;
+        --border-light: #e9ecef;
+    }
+
+    /* ===== شريط البحث والفلتر ===== */
+    .search-filter-bar {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-light);
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+    }
+
+    .search-box i {
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 1.2em;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 15px 50px 15px 20px;
+        border: 2px solid var(--border-light);
+        border-radius: 50px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.1);
+    }
+
+    .filter-toggle-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0 25px;
+        border-radius: 50px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        height: 55px;
+        font-size: 1em;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    .filter-toggle-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+    }
+
+    .filter-count {
+        background: white;
+        color: var(--primary-color);
+        border-radius: 30px;
+        padding: 2px 8px;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+
+    /* السايدبار */
+    .filter-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .filter-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .filter-sidebar {
+        position: fixed;
+        top: 0;
+        right: -450px;
+        width: 100%;
+        max-width: 450px;
+        height: 100%;
+        background: white;
+        z-index: 1001;
+        box-shadow: -5px 0 30px rgba(0,0,0,0.1);
+        transition: right 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-sidebar.active {
+        right: 0;
+    }
+
+    .filter-header {
+        background: var(--dark-bg);
+        color: white;
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .filter-header h3 {
+        margin: 0;
+        font-size: 1.3em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .close-filter {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5em;
+        cursor: pointer;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .close-filter:hover {
+        background: rgba(255,255,255,0.2);
+        transform: rotate(90deg);
+    }
+
+    .filter-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 25px;
+    }
+
+    .filter-group {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .filter-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--dark-bg);
+        margin-bottom: 12px;
+    }
+
+    .filter-group label i {
+        color: var(--primary-color);
+        margin-left: 8px;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid var(--border-light);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+
+    .price-range {
+        display: flex;
+        gap: 15px;
+    }
+
+    .price-range div {
+        flex: 1;
+    }
+
+    .filter-footer {
+        padding: 20px 25px;
+        border-top: 1px solid var(--border-light);
+        display: flex;
+        gap: 15px;
+        background: white;
+        position: sticky;
+        bottom: 0;
+    }
+
+    .btn-apply {
+        flex: 1;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-apply:hover {
+        background: var(--primary-hover);
+    }
+
+    .btn-reset {
+        flex: 1;
+        background: #f8f9fa;
+        color: var(--text-muted);
+        border: 2px solid var(--border-light);
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+    }
+
+    .btn-reset:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+        .filter-sidebar {
+            max-width: 100%;
+        }
+        
+        .search-filter-bar .row {
+            flex-direction: column;
+        }
+        
+        .filter-toggle-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* متغيرات الألوان - ذهبي هادئ */
+    :root {
+        --primary-color: #d4a853;
+        --primary-hover: #b88d3f;
+        --primary-light: #f5e6d3;
+        --dark-bg: #1e2a3a;
+        --text-dark: #2c3e50;
+        --text-muted: #6c757d;
+        --border-light: #e9ecef;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #e6b17e;
+    }
+
+    /* عنوان الصفحة */
+    .page-header {
+        text-align: center;
+        margin: 40px 0 50px;
+    }
+    
+    .page-header h1 {
+        font-size: 3em;
+        margin-bottom: 10px;
+        font-weight: 700;
+        color: var(--dark-bg);
+    }
+    
+    .page-header p {
+        font-size: 1.2em;
+        color: var(--text-muted);
+    }
+    
+    /* شبكة المنتجات */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+        max-width: 1400px;
+        margin: 0 auto 40px;
+    }
+    
+    /* بطاقة المنتج */
+    .product-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+    }
+    
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        border-color: var(--primary-color);
+    }
+    
+    /* صورة المنتج */
+    .product-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background: #f8f9fa;
+    }
+    
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .product-card:hover .product-image img {
+        transform: scale(1.1);
+    }
+    
+    /* علامات المنتج */
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--primary-color);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 25px;
+        font-size: 0.9em;
+        font-weight: 600;
+        box-shadow: 0 3px 10px rgba(212, 168, 83, 0.2);
+        z-index: 2;
+    }
+    
+    .product-badge.out-of-stock-badge {
+        background: var(--danger-color);
+        color: white;
+    }
+    
+    /* معلومات المنتج */
+    .product-info {
+        padding: 20px;
+    }
+    
+    .product-info h3 {
+        margin: 0 0 10px;
+        font-size: 1.3em;
+    }
+    
+    .product-info h3 a {
+        color: var(--dark-bg);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        font-weight: 600;
+    }
+    
+    .product-info h3 a:hover {
+        color: var(--primary-color);
+    }
+    
+    .product-description {
+        color: var(--text-muted);
+        font-size: 0.9em;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+    
+    .product-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 15px 0;
+        padding: 10px 0;
+        border-top: 1px solid var(--border-light);
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .product-price {
+        font-size: 1.3em;
+        font-weight: 700;
+        color: var(--success-color);
+    }
+    
+    .stock-status {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9em;
+        color: var(--success-color);
+    }
+    
+    .stock-status.low-stock {
+        color: var(--warning-color);
+    }
+    
+    .stock-status.out-stock {
+        color: var(--danger-color);
+    }
+    
+    .stock-status i {
+        font-size: 0.9em;
+    }
+    
+    /* زر عرض التفاصيل */
+    .product-link {
+        display: block;
+        text-align: center;
+        padding: 12px;
+        background-color: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .product-link:hover {
+        background-color: var(--primary-hover);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 168, 83, 0.3);
+    }
+    
+    .product-link i {
+        margin-left: 8px;
+    }
+    
+    /* حالة عدم وجود منتجات */
+    .no-products {
+        text-align: center;
+        color: var(--dark-bg);
+        padding: 80px 20px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        max-width: 600px;
+        margin: 50px auto;
+        border: 1px solid var(--border-light);
+    }
+    
+    .no-products i {
+        font-size: 5em;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        opacity: 0.5;
+    }
+    
+    .no-products h2 {
+        font-size: 2em;
+        margin-bottom: 15px;
+        color: var(--dark-bg);
+    }
+    
+    .no-products p {
+        font-size: 1.1em;
+        color: var(--text-muted);
+    }
+    
+    /* Pagination محسن */
+    .pagination-container {
+        max-width: 1200px;
+        margin: 50px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        border: 1px solid var(--border-light);
+    }
+    
+    .pagination-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .pagination-info {
+        color: var(--text-muted);
+        font-size: 1.1em;
+        font-weight: 500;
+    }
+    
+    .pagination {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .page-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        background: #f8f9fa;
+        color: var(--dark-bg);
+        text-decoration: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        border: 1px solid var(--border-light);
+    }
+    
+    .page-nav:hover:not(.disabled) {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 168, 83, 0.2);
+        border-color: var(--primary-color);
+    }
+    
+    .page-nav.disabled {
+        background: #f8f9fa;
+        color: #adb5bd;
+        cursor: not-allowed;
+        pointer-events: none;
+        opacity: 0.6;
+    }
+    
+    .current-page {
+        padding: 10px 25px;
+        background: var(--dark-bg);
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .quick-pages {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .quick-page {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 10px;
+        background: #f8f9fa;
+        color: var(--dark-bg);
+        text-decoration: none;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        border: 1px solid var(--border-light);
+    }
+    
+    .quick-page:hover {
+        background: var(--primary-light);
+        color: var(--primary-hover);
+        transform: translateY(-2px);
+        border-color: var(--primary-color);
+    }
+    
+    .quick-page.current {
+        background: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 5px 15px rgba(212, 168, 83, 0.2);
+        border-color: var(--primary-color);
+    }
+    
+    /* تحسين للشاشات الصغيرة */
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 2em;
+        }
+        
+        .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .product-image {
+            height: 180px;
+        }
+        
+        .page-nav {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .current-page {
+            padding: 8px 15px;
+        }
+        
+        .quick-page {
+            min-width: 35px;
+            height: 35px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .products-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .pagination {
+            gap: 5px;
+        }
+        
+        .page-nav {
+            width: 35px;
+            height: 35px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- عنوان الصفحة -->
+<div class="page-header">
+    <h1>منتجاتنا</h1>
+    <p>اكتشف أحدث المنتجات المميزة</p>
+</div>
+
+<div class="container mt-4">
+    <!-- ===== شريط البحث والفلتر (ضيف ده في أول الصفحة) ===== -->
+    <div class="search-filter-bar">
+        <div class="row align-items-center g-3">
+            <div class="col-md-7">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <form method="GET" id="search-form">
+                        <input type="text" 
+                               name="name" 
+                               class="search-input" 
+                               placeholder="ابحث عن منتج... (اسم المنتج )"
+                               value= "{{ request.GET.name }}">
+                        <!-- حفظ الفلاتر الأخرى -->
+                        {% for key, value in request.GET.items %}
+                            {% if key != 'name' and key != 'page'  and key != 'description' %}
+                                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                            {% endif %}
+                        {% endfor %}
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="d-flex gap-3 justify-content-md-end">
+                    <button type="button" class="filter-toggle-btn" id="filterToggleBtn">
+                        <i class="bi bi-funnel"></i>
+                        فلتر
+                        {% if active_filters_count > 0 %}
+                            <span class="filter-count">{{ active_filters_count }}</span>
+                        {% endif %}
+                    </button>
+                    
+                    <div class="btn btn-light" style="border-radius: 50px; cursor: default;">
+                        <i class="bi bi-grid"></i>
+                        {{ products.paginator.count }} منتج
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!--  main code for products -->
+{% if products %}
+   
+    <div class="products-grid">
+        {% for product in  products %}
+            <div class="product-card">
+                <!-- صورة المنتج -->
+                <div class="product-image">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x200?text=لا+توجد+صورة" alt="لا توجد صورة">
+                    {% endif %}
+                    
+                    <!-- علامات المنتج -->
+                    {% if product.stock <= 5 and product.stock > 0 %}
+                        <span class="product-badge">متبقي {{ product.stock }} فقط</span>
+                    {% elif product.stock == 0 %}
+                        <span class="product-badge out-of-stock-badge">نفذ من المخزون</span>
+                    {% endif %}
+                </div>
+                
+                <!-- معلومات المنتج -->
+                <div class="product-info">
+                    <h3>
+                        <a href="{{ product.get_absolute_url }}">{{ product.name|truncatechars:25 }}</a>
+                    </h3>
+                    
+                    <!-- وصف مختصر -->
+                    {% if product.description %}
+                        <p class="product-description">{{ product.description|truncatechars:50 }}</p>
+                    {% endif %}
+                    
+                    <div class="product-details">
+                        <span class="product-price">{{ product.price }} جنيه</span>
+                        
+                        <div class="stock-status {% if product.stock <= 5 and product.stock > 0 %}low-stock{% elif product.stock == 0 %}out-stock{% endif %}">
+                            <i class="bi {% if product.stock > 0 %}bi-check-circle-fill{% else %}bi-x-circle-fill{% endif %}"></i>
+                            <span>
+                                {% if product.stock > 0 %}
+                                    متوفر: {{ product.stock }} قطعة
+                                {% else %}
+                                    غير متوفر
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ product.get_absolute_url }}" class="product-link">
+                        <i class="bi bi-eye"></i>
+                        عرض التفاصيل
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>        
+    
+{% else %}
+    <div class="no-products">
+        <i class="bi bi-box-seam"></i>
+        <h2>لا توجد منتجات متاحة حالياً</h2>
+        <p>نعتذر، لا يوجد منتجات للعرض حالياً. تفضل بزيارتنا لاحقاً.</p>
+    </div>
+{% endif %}
+
+<!-- Pagination محسن -->
+{% if products.has_other_pages %}
+<div class="pagination-container">
+    <div class="pagination-wrapper">
+        <!-- معلومات عرض المنتجات -->
+        <div class="pagination-info">
+            عرض {{ products.start_index }} - {{ products.end_index }} من {{ products.paginator.count }} منتج
+        </div>
+        
+        <!-- أزرار التنقل -->
+        <div class="pagination">
+            {% if products.has_previous %}
+                <a href="?page=1&{{request.GET.urlencode}}" class="page-nav" title="الصفحة الأولى">
+                    <i class="bi bi-chevron-double-right"></i>
+                </a>
+                <a href="?page={{ products.previous_page_number }}&{{request.GET.urlencode}}" class="page-nav" title="السابق">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            {% else %}
+                <span class="page-nav disabled">
+                    <i class="bi bi-chevron-double-right"></i>
+                </span>
+                <span class="page-nav disabled">
+                    <i class="bi bi-chevron-right"></i>
+                </span>
+            {% endif %}
+            
+            <span class="current-page">
+                صفحة {{ products.number }} من {{ products.paginator.num_pages }}
+            </span>
+            
+            {% if products.has_next %}
+                <a href="?page={{ products.next_page_number }}&{{request.GET.urlencode}}" class="page-nav" title="التالي">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                <a href="?page={{ products.paginator.num_pages }}&{{request.GET.urlencode}}" class="page-nav" title="الأخيرة">
+                    <i class="bi bi-chevron-double-left"></i>
+                </a>
+            {% else %}
+                <span class="page-nav disabled">
+                    <i class="bi bi-chevron-left"></i>
+                </span>
+                <span class="page-nav disabled">
+                    <i class="bi bi-chevron-double-left"></i>
+                </span>
+            {% endif %}
+        </div>
+        
+        <!-- أرقام الصفحات السريعة -->
+        <div class="quick-pages">
+            {% for num in products.paginator.page_range %}
+                {% if num >= products.number|add:'-2' and num <= products.number|add:'2' %}
+                    {% if num == products.number %}
+                        <span class="quick-page current">{{ num }}</span>
+                    {% else %}
+                        <a href="?page={{ num }}&{{request.GET.urlencode}}" class="quick-page">{{ num }}</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+<!-- end pagination -->
+<!-- ===== الفلتر المنزلق (السايدبار) ===== -->
+<div class="filter-overlay" id="filterOverlay"></div>
+<div class="filter-sidebar" id="filterSidebar">
+    <div class="filter-header">
+        <h3>
+            <i class="bi bi-funnel"></i>
+            فلترة المنتجات
+        </h3>
+        <button class="close-filter" id="closeFilterBtn">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    
+    <form method="GET" id="filter-form" class="filter-body">
+        <!-- حفظ كلمة البحث -->
+        {% if request.GET.search %}
+            <input type="hidden" name="search" value="{{ request.GET.search }}">
+        {% endif %}
+        
+        <!-- حقول الفلتر -->
+        <div class="filter-group">
+            <label>
+                <i class="bi bi-tag"></i>
+                اسم المنتج
+            </label>
+            {{ products_filter.form.name }}
+        </div>
+        
+        <div class="filter-group">
+            <label>
+                <i class="bi bi-currency-dollar"></i>
+                نطاق السعر
+            </label>
+            <div class="price-range">
+                <div>
+                    <label>من</label>
+                    {{ products_filter.form.price_lte }}
+                </div>
+                <div>
+                    <label>إلى</label>
+                    {{ products_filter.form.price_gte }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="filter-group">
+            <label>
+                <i class="bi bi-boxes"></i>
+                التصنيف
+            </label>
+            {{ products_filter.form.category }}
+        </div>
+       
+        
+        <div class="filter-group">
+            <label>
+                <i class="bi bi-sort-up"></i>
+              الوصف
+            </label>
+            {{ products_filter.form.description }}
+        </div>
+         
+        
+        <div class="filter-footer">
+            <button type="submit" class="btn-apply">
+                <i class="bi bi-check-lg"></i>
+                تطبيق الفلتر
+            </button>
+            <a href="{% url 'products:list' %}" class="btn-reset">
+                <i class="bi bi-arrow-repeat"></i>
+                إعادة تعيين
+            </a>
+        </div>
+    </form>
+</div>
+<!-- ===== جافاسكريبت الفلتر ===== -->
+<script>
+    const filterOverlay = document.getElementById('filterOverlay');
+    const filterSidebar = document.getElementById('filterSidebar');
+    const filterToggleBtn = document.getElementById('filterToggleBtn');
+    const closeFilterBtn = document.getElementById('closeFilterBtn');
+    
+    function openFilter() {
+        filterOverlay.classList.add('active');
+        filterSidebar.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeFilter() {
+        filterOverlay.classList.remove('active');
+        filterSidebar.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    filterToggleBtn.addEventListener('click', openFilter);
+    closeFilterBtn.addEventListener('click', closeFilter);
+    filterOverlay.addEventListener('click', closeFilter);
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && filterSidebar.classList.contains('active')) {
+            closeFilter();
+        }
+    });
+    
+    // البحث التلقائي
+    const searchInput = document.querySelector('.search-input');
+    let searchTimeout;
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('search-form').submit();
+            }, 1000);
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,384 @@
+<!-- accounts/templates/registration/login.html -->
+{% extends 'base.html' %}
+
+{% block title %}تسجيل الدخول - AHM متجر{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* حاوية الفورم */
+    .login-container {
+        max-width: 500px;
+        margin: 60px auto;
+        padding: 0 20px;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+
+    .login-card:hover {
+        box-shadow: 0 20px 40px rgba(212, 168, 83, 0.1);
+        border-color: var(--primary-light);
+    }
+
+    /* عنوان الفورم */
+    .login-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .login-header h2 {
+        font-size: 2em;
+        color: var(--dark-bg);
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .login-header p {
+        color: var(--text-muted);
+        font-size: 0.95em;
+    }
+
+    .login-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+
+    .login-icon i {
+        font-size: 2.5em;
+        color: var(--primary-color);
+    }
+
+    /* تنسيق الحقول */
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--dark-bg);
+        font-size: 0.95em;
+    }
+
+    .form-label i {
+        color: var(--primary-color);
+        margin-left: 8px;
+        width: 20px;
+    }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid var(--border-light);
+        border-radius: 12px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-control-custom:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.1);
+    }
+
+    .form-control-custom.is-invalid {
+        border-color: var(--danger-color);
+    }
+
+    /* أخطاء الفورم */
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin-top: 8px;
+    }
+
+    .errorlist li {
+        color: var(--danger-color);
+        font-size: 0.85em;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .errorlist li:before {
+        content: "⚠️";
+        font-size: 0.9em;
+    }
+
+    /* خيار تذكرني */
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+
+    .checkbox-custom {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: var(--primary-color);
+    }
+
+    .checkbox-label {
+        color: var(--text-muted);
+        font-size: 0.95em;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .checkbox-label i {
+        color: var(--primary-color);
+    }
+
+    /* زر تسجيل الدخول */
+    .btn-login {
+        width: 100%;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    /* الفاصل */
+    .divider {
+        position: relative;
+        text-align: center;
+        margin: 25px 0;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--border-light);
+    }
+
+    .divider span {
+        position: relative;
+        background: white;
+        padding: 0 15px;
+        color: var(--text-muted);
+        font-size: 0.9em;
+    }
+
+    /* الروابط */
+    .links-wrapper {
+        text-align: center;
+    }
+
+    .forgot-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+    }
+
+    .forgot-link:hover {
+        color: var(--primary-color);
+    }
+
+    .register-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--dark-bg);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .register-link:hover {
+        color: var(--primary-color);
+        transform: translateX(-3px);
+    }
+
+    /* رسائل التنبيه */
+    .alert-message {
+        background: var(--primary-light);
+        border-right: 4px solid var(--primary-color);
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9em;
+        color: var(--dark-bg);
+    }
+
+    .alert-message i {
+        color: var(--primary-color);
+        font-size: 1.2em;
+    }
+
+    /* تحسينات للشاشات الصغيرة */
+    @media (max-width: 576px) {
+        .login-card {
+            padding: 25px;
+        }
+
+        .login-header h2 {
+            font-size: 1.6em;
+        }
+
+        .login-icon {
+            width: 60px;
+            height: 60px;
+        }
+
+        .login-icon i {
+            font-size: 2em;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <!-- أيقونة ورأس الصفحة -->
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="bi bi-person-circle"></i>
+            </div>
+            <h2>مرحباً بك</h2>
+            <p>سجل دخولك للوصول إلى حسابك</p>
+        </div>
+
+        <!-- عرض رسائل الخطأ العامة -->
+        {% if form.non_field_errors %}
+            <div class="alert-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {% for error in form.non_field_errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- فورم تسجيل الدخول -->
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <!-- حقل اسم المستخدم -->
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-person"></i>
+                    اسم المستخدم أو البريد الإلكتروني
+                </label>
+                <input type="text" 
+                       name="username" 
+                       class="form-control-custom {% if form.username.errors %}is-invalid{% endif %}"
+                       id="{{ form.username.id_for_label }}"
+                       placeholder="أدخل اسم المستخدم أو البريد الإلكتروني"
+                       value="{{ form.username.value|default:'' }}"
+                       autofocus>
+                {% if form.username.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <!-- حقل كلمة المرور -->
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-lock"></i>
+                    كلمة المرور
+                </label>
+                <input type="password" 
+                       name="password" 
+                       class="form-control-custom {% if form.password.errors %}is-invalid{% endif %}"
+                       id="{{ form.password.id_for_label }}"
+                       placeholder="أدخل كلمة المرور">
+                {% if form.password.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <!-- خيار تذكرني -->
+            <div class="checkbox-wrapper">
+                <input type="checkbox" name="remember_me" class="checkbox-custom" id="remember_me">
+                <label class="checkbox-label" for="remember_me">
+                    <i class="bi bi-check-circle"></i>
+                    تذكرني
+                </label>
+            </div>
+            
+            <!-- زر تسجيل الدخول -->
+            <button type="submit" class="btn-login">
+                <i class="bi bi-box-arrow-in-right"></i>
+                تسجيل الدخول
+                <i class="bi bi-arrow-left"></i>
+            </button>
+        </form>
+
+        <!-- الفاصل -->
+        <div class="divider">
+            <span>أو</span>
+        </div>
+
+        <!-- الروابط الإضافية -->
+        <div class="links-wrapper">
+            <a href="{% url 'password_reset' %}" class="forgot-link">
+                <i class="bi bi-key"></i>
+                نسيت كلمة المرور؟
+            </a>
+            <br>
+            <a href="{% url 'register' %}" class="register-link">
+                <i class="bi bi-person-plus"></i>
+                إنشاء حساب جديد
+                <i class="bi bi-arrow-left"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

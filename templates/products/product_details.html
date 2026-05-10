@@ -1,0 +1,802 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} - AHM متجر{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* نفس متغيرات الألوان من الصفحات السابقة */
+    :root {
+        --primary-color: #d4a853;
+        --primary-hover: #b88d3f;
+        --primary-light: #f5e6d3;
+        --dark-bg: #1e2a3a;
+        --text-dark: #2c3e50;
+        --text-muted: #6c757d;
+        --border-light: #e9ecef;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #e6b17e;
+        --bg-light: #f8f9fa;
+    }
+
+    /* الحاوية الرئيسية */
+    .product-detail-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    /* تفاصيل المنتج الرئيسي */
+    .product-detail {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-light);
+        margin-bottom: 60px;
+    }
+
+    .product-header {
+        display: flex;
+        gap: 50px;
+        flex-wrap: wrap;
+    }
+
+    /* صورة المنتج */
+    .product-image-container {
+        flex: 1;
+        min-width: 350px;
+    }
+
+    .product-main-image {
+        width: 100%;
+        height: 450px;
+        object-fit: cover;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        transition: all 0.5s ease;
+        border: 1px solid var(--border-light);
+    }
+
+    .product-main-image:hover {
+        transform: scale(1.02);
+        box-shadow: 0 15px 35px rgba(212, 168, 83, 0.15);
+        border-color: var(--primary-color);
+    }
+
+    /* معلومات المنتج */
+    .product-info {
+        flex: 1;
+        min-width: 350px;
+    }
+
+    .product-info h1 {
+        font-size: 2.5em;
+        color: var(--dark-bg);
+        margin-bottom: 20px;
+        border-bottom: 3px solid var(--primary-light);
+        padding-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .product-description {
+        line-height: 1.8;
+        color: var(--text-muted);
+        font-size: 1.1em;
+        margin: 25px 0;
+        padding: 25px;
+        background: var(--bg-light);
+        border-radius: 15px;
+        border-right: 4px solid var(--primary-color);
+    }
+
+    .product-price {
+        font-size: 2.8em;
+        font-weight: 700;
+        color: var(--success-color);
+        margin: 20px 0;
+        display: inline-block;
+        background: linear-gradient(135deg, var(--success-color) 0%, #34a853 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stock-info {
+        font-size: 1.2em;
+        margin: 25px 0;
+        padding: 15px 20px;
+        border-radius: 12px;
+        background: var(--bg-light);
+        border: 1px solid var(--border-light);
+    }
+
+    .in-stock {
+        color: var(--success-color);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .in-stock i {
+        color: var(--success-color);
+        font-size: 1.3em;
+    }
+
+    .out-of-stock {
+        color: var(--danger-color);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .out-of-stock i {
+        color: var(--danger-color);
+        font-size: 1.3em;
+    }
+
+    /* معلومات إضافية */
+    .product-meta {
+        color: var(--text-muted);
+        border-top: 1px solid var(--border-light);
+        padding-top: 25px;
+        margin-top: 25px;
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95em;
+    }
+
+    .meta-item i {
+        color: var(--primary-color);
+        font-size: 1.2em;
+    }
+
+    /* زر العودة */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 25px;
+        padding: 12px 30px;
+        background: white;
+        color: var(--dark-bg);
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid var(--border-light);
+    }
+
+    .back-link:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateX(-5px);
+    }
+
+    /* ===== قسم إضافة للسلة (محدث) ===== */
+    .add-to-cart-wrapper {
+        background: linear-gradient(135deg, var(--bg-light) 0%, #ffffff 100%);
+        border-radius: 20px;
+        padding: 30px;
+        margin: 30px 0 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+
+    .add-to-cart-wrapper:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 15px 35px rgba(212, 168, 83, 0.1);
+    }
+
+    .quantity-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+        color: var(--dark-bg);
+        font-weight: 600;
+    }
+
+    .quantity-label i {
+        color: var(--primary-color);
+        font-size: 1.3rem;
+    }
+
+    .quantity-row {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .quantity-box {
+        flex: 0 0 130px;
+    }
+
+    .quantity-input {
+        width: 100%;
+        height: 65px;
+        border: 2px solid var(--border-light);
+        border-radius: 15px;
+        text-align: center;
+        font-size: 1.6rem;
+        font-weight: bold;
+        color: var(--dark-bg);
+        background: white;
+        transition: all 0.3s ease;
+        padding: 0 10px;
+    }
+
+    .quantity-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.1);
+        outline: none;
+    }
+
+    .quantity-input:hover {
+        border-color: var(--primary-hover);
+    }
+
+    /* زر الإضافة للسلة */
+    .add-to-cart-btn {
+        flex: 1;
+        min-width: 250px;
+        height: 65px;
+        background: var(--primary-color);
+        border: none;
+        border-radius: 15px;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(212, 168, 83, 0.2);
+    }
+
+    .add-to-cart-btn i {
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .add-to-cart-btn .btn-price {
+        background: rgba(255,255,255,0.2);
+        padding: 6px 15px;
+        border-radius: 30px;
+        font-size: 1rem;
+        margin-right: 10px;
+        backdrop-filter: blur(5px);
+    }
+
+    .add-to-cart-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(212, 168, 83, 0.3);
+    }
+
+    .add-to-cart-btn:hover i {
+        transform: translateX(-5px) scale(1.1);
+    }
+
+    .add-to-cart-btn:active {
+        transform: translateY(0);
+    }
+
+    /* معلومات الشحن */
+    .shipping-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 25px;
+        padding: 15px 20px;
+        background: rgba(212, 168, 83, 0.05);
+        border-radius: 12px;
+        color: var(--text-dark);
+        font-size: 0.95rem;
+        border: 1px dashed var(--primary-color);
+    }
+
+    .shipping-info i {
+        color: var(--primary-color);
+        font-size: 1.3rem;
+    }
+
+    /* ===== المنتجات ذات الصلة ===== */
+    .related-products-section {
+        margin: 60px 0;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .section-title h3 {
+        font-size: 2.2em;
+        color: var(--dark-bg);
+        margin-bottom: 10px;
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+    }
+
+    .section-title h3:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: var(--primary-color);
+        border-radius: 3px;
+    }
+
+    .section-title p {
+        color: var(--text-muted);
+        font-size: 1.1em;
+    }
+
+    .related-products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .related-product-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+    }
+
+    .related-product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(212, 168, 83, 0.15);
+        border-color: var(--primary-color);
+    }
+
+    .related-product-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .related-product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .related-product-card:hover .related-product-image img {
+        transform: scale(1.1);
+    }
+
+    .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.1));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .related-product-card:hover .image-overlay {
+        opacity: 1;
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--primary-color);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 25px;
+        font-size: 0.9em;
+        font-weight: 600;
+        box-shadow: 0 3px 10px rgba(212, 168, 83, 0.3);
+        z-index: 2;
+    }
+
+    .product-badge.out-of-stock {
+        background: var(--danger-color);
+    }
+
+    .related-card-info {
+        padding: 20px;
+    }
+
+    .related-card-info h4 {
+        margin: 0 0 10px;
+        font-size: 1.2em;
+    }
+
+    .related-card-info h4 a {
+        color: var(--dark-bg);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        font-weight: 600;
+    }
+
+    .related-card-info h4 a:hover {
+        color: var(--primary-color);
+    }
+
+    .product-price-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 15px 0;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .related-product-price {
+        font-size: 1.3em;
+        font-weight: 700;
+        color: var(--success-color);
+    }
+
+    .product-rating {
+        color: #ffc107;
+    }
+
+    .product-rating span {
+        color: var(--text-muted);
+        font-size: 0.9em;
+        margin-right: 5px;
+    }
+
+    .stock-status {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9em;
+        color: var(--success-color);
+        padding: 5px 0;
+    }
+
+    .stock-status.low {
+        color: var(--warning-color);
+    }
+
+    .stock-status.out {
+        color: var(--danger-color);
+    }
+
+    .view-details-btn {
+        display: block;
+        text-align: center;
+        padding: 12px;
+        background: white;
+        color: var(--primary-color);
+        text-decoration: none;
+        border-radius: 10px;
+        margin-top: 15px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid var(--primary-color);
+    }
+
+    .view-details-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 168, 83, 0.3);
+    }
+
+    /* تأثير للكمية المتبقية */
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 0 0 0 rgba(212, 168, 83, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(212, 168, 83, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(212, 168, 83, 0); }
+    }
+
+    {% if product.stock <= 5 and product.stock > 0 %}
+    .quantity-input {
+        animation: pulse-glow 2s infinite;
+        border-color: var(--warning-color);
+    }
+    {% endif %}
+
+    /* تحسينات للشاشات الصغيرة */
+    @media (max-width: 768px) {
+        .product-detail {
+            padding: 25px;
+        }
+
+        .product-header {
+            gap: 30px;
+        }
+
+        .product-image-container,
+        .product-info {
+            min-width: 100%;
+        }
+
+        .product-main-image {
+            height: 350px;
+        }
+
+        .product-info h1 {
+            font-size: 2em;
+        }
+
+        .product-price {
+            font-size: 2.2em;
+        }
+
+        .quantity-row {
+            flex-direction: column;
+        }
+
+        .quantity-box {
+            flex: 1;
+            width: 100%;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+        }
+
+        .product-meta {
+            gap: 15px;
+            flex-direction: column;
+        }
+
+        .related-products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+    }
+
+    @media (max-width: 480px) {
+        .product-detail {
+            padding: 20px;
+        }
+
+        .product-main-image {
+            height: 250px;
+        }
+
+        .add-to-cart-wrapper {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-container">
+    <div class="product-detail">
+        <div class="product-header">
+            <!-- صورة المنتج -->
+            <div class="product-image-container">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-main-image">
+                {% else %}
+                    <img src="https://via.placeholder.com/400x400?text=لا+توجد+صورة" alt="لا توجد صورة" class="product-main-image">
+                {% endif %}
+            </div>
+            
+            <!-- معلومات المنتج -->
+            <div class="product-info">
+                <h1>{{ product.name }}</h1>
+                
+                {% if product.description %}
+                    <div class="product-description">
+                        <i class="bi bi-quote" style="color: var(--primary-color); font-size: 1.5rem;"></i>
+                        <p>{{ product.description }}</p>
+                    </div>
+                {% endif %}
+                
+                <div class="product-price">
+                    {{ product.price }} جنيه
+                </div>
+                
+                <div class="stock-info">
+                    {% if product.stock > 0 %}
+                        <span class="in-stock">
+                            <i class="bi bi-check-circle-fill"></i>
+                            متوفر: {{ product.stock }} قطعة
+                        </span>
+                    {% else %}
+                        <span class="out-of-stock">
+                            <i class="bi bi-x-circle-fill"></i>
+                            غير متوفر حالياً
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <!-- إضافة للسلة -->
+                {% if product.stock > 0 %}
+                <div class="add-to-cart-wrapper">
+                    <form action="{% url 'cart:add' product.id %}" method="POST" class="add-to-cart-form">
+                        {% csrf_token %}
+                        
+                        <div class="quantity-label">
+                            <i class="bi bi-sort-numeric-up"></i>
+                            <span>اختر الكمية:</span>
+                        </div>
+                        
+                        <div class="quantity-row">
+                            <div class="quantity-box">
+                                <input type="number" 
+                                       name="quantity" 
+                                       id="quantity-input"
+                                       value="1"
+                                       min="1" 
+                                       max="{{ product.stock }}" 
+                                       class="quantity-input"
+                                       step="1"
+                                       {% if product.stock == 1 %}readonly{% endif %}>
+                            </div>
+                            
+                            <button type="submit" class="add-to-cart-btn" id="add-to-cart-btn">
+                                <i class="bi bi-cart-plus"></i>
+                                أضف إلى السلة
+                                <span class="btn-price">{{ product.price }} جنيه</span>
+                            </button>
+                        </div>
+                        
+                        <div class="shipping-info">
+                            <i class="bi bi-truck"></i>
+                            <span>توصيل سريع خلال 2-3 أيام عمل</span>
+                            <i class="bi bi-shield-check ms-auto" style="color: var(--primary-color);"></i>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+                
+                <!-- معلومات إضافية -->
+                <div class="product-meta">
+                    <div class="meta-item">
+                        <i class="bi bi-calendar3"></i>
+                        <span>تم النشر: {{ product.published_at|date:"j F Y" }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="bi bi-clock-history"></i>
+                        <span>آخر تحديث: {{ product.updated_at|date:"j F Y" }}</span>
+                    </div>
+                </div>
+                
+                <a href="{% url 'products:list' %}" class="back-link">
+                    <i class="bi bi-arrow-right"></i>
+                    العودة إلى المنتجات
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- المنتجات ذات الصلة -->
+    {% if related_products %}
+    <div class="related-products-section">
+        <div class="section-title">
+            <h3>منتجات قد تعجبك</h3>
+            <p>اكتشف المزيد من المنتجات المميزة</p>
+        </div>
+        
+        <div class="related-products-grid">
+            {% for related in related_products %}
+                <div class="related-product-card">
+                    <div class="related-product-image">
+                        {% if related.image %}
+                            <img src="{{ related.image.url }}" alt="{{ related.name }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x200?text=لا+توجد+صورة" alt="لا توجد صورة">
+                        {% endif %}
+                        <div class="image-overlay"></div>
+                        {% if related.stock <= 5 and related.stock > 0 %}
+                            <span class="product-badge">متبقي {{ related.stock }} فقط</span>
+                        {% elif related.stock == 0 %}
+                            <span class="product-badge out-of-stock">نفذ من المخزون</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="related-card-info">
+                        <h4>
+                            <a href="{{ related.get_absolute_url }}">{{ related.name|truncatechars:30 }}</a>
+                        </h4>
+                        
+                        <div class="product-price-row">
+                            <span class="related-product-price">{{ related.price }} جنيه</span>
+                            <div class="product-rating">
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-half"></i>
+                                <span>(4.5)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stock-status {% if related.stock <= 5 and related.stock > 0 %}low{% elif related.stock == 0 %}out{% endif %}">
+                            <i class="bi {% if related.stock > 0 %}bi-check-circle-fill{% else %}bi-x-circle-fill{% endif %}"></i>
+                            {% if related.stock > 0 %}
+                                متوفر ({{ related.stock }} قطعة)
+                            {% else %}
+                                غير متوفر
+                            {% endif %}
+                        </div>
+                        
+                        <a href="{{ related.get_absolute_url }}" class="view-details-btn">
+                            <i class="bi bi-eye"></i>
+                            عرض التفاصيل
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- JavaScript للتحقق من الكمية -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.getElementById('quantity-input');
+    
+    if (quantityInput) {
+        const maxStock = parseInt(quantityInput.max);
+        
+        // التحقق من الكمية قبل الإرسال
+        quantityInput.form.addEventListener('submit', function(e) {
+            const quantity = parseInt(quantityInput.value);
+            
+            if (isNaN(quantity) || quantity < 1) {
+                e.preventDefault();
+                alert('الرجاء إدخال كمية صالحة');
+                quantityInput.value = 1;
+                quantityInput.focus();
+                return false;
+            }
+            
+            if (quantity > maxStock) {
+                e.preventDefault();
+                alert(`الكمية المتوفرة فقط ${maxStock} قطعة`);
+                quantityInput.value = maxStock;
+                return false;
+            }
+            
+            return true;
+        });
+        
+        // منع إدخال أحرف
+        quantityInput.addEventListener('keypress', function(e) {
+            if (e.key < '0' || e.key > '9') {
+                e.preventDefault();
+            }
+        });
+        
+        // التأكد من أن القيمة في النطاق المسموح
+        quantityInput.addEventListener('change', function() {
+            let val = parseInt(this.value);
+            if (isNaN(val) || val < 1) this.value = 1;
+            if (val > maxStock) this.value = maxStock;
+        });
+    }
+});
+</script>
+{% endblock %}

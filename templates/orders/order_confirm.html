@@ -1,0 +1,482 @@
+{% extends 'base.html' %}
+
+{% block title %}تأكيد الدفع - طلب #{{ order.id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* نفس متغيرات الألوان من الصفحات السابقة */
+    :root {
+        --primary-color: #d4a853;
+        --primary-hover: #b88d3f;
+        --primary-light: #f5e6d3;
+        --dark-bg: #1e2a3a;
+        --text-dark: #2c3e50;
+        --text-muted: #6c757d;
+        --border-light: #e9ecef;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #e6b17e;
+        --bg-light: #f8f9fa;
+    }
+
+    /* حاوية الصفحة الرئيسية */
+    .payment-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    /* بطاقة التأكيد الرئيسية */
+    .confirmation-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+
+    .confirmation-card:hover {
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+    /* رأس البطاقة */
+    .card-header-success {
+        background: linear-gradient(135deg, var(--success-color) 0%, #218838 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header-success::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: rgba(255,255,255,0.05);
+        transform: rotate(45deg);
+    }
+
+    .card-header-success h2 {
+        margin: 0;
+        font-size: 1.8em;
+        font-weight: 700;
+        position: relative;
+        z-index: 2;
+    }
+
+    .card-header-success i {
+        font-size: 2em;
+        margin-left: 10px;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* جسم البطاقة */
+    .card-body-payment {
+        padding: 40px;
+    }
+
+    /* أيقونة النجاح */
+    .success-icon {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .success-icon span {
+        font-size: 4em;
+        display: inline-block;
+        animation: bounce 1s ease;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    /* رسالة الترحيب */
+    .welcome-message {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .welcome-message h3 {
+        font-size: 1.8em;
+        color: var(--dark-bg);
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    /* تنبيه معلومات الطلب */
+    .order-alert {
+        background: var(--primary-light);
+        border-right: 4px solid var(--primary-color);
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+    }
+
+    .order-alert p {
+        margin: 0;
+        font-size: 1.1em;
+    }
+
+    .order-alert strong {
+        color: var(--primary-color);
+        font-size: 1.2em;
+    }
+
+    /* جدول المنتجات */
+    .products-table {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .products-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .products-table th {
+        background: var(--bg-light);
+        padding: 15px;
+        font-weight: 600;
+        color: var(--dark-bg);
+        border-bottom: 2px solid var(--border-light);
+        text-align: center;
+    }
+
+    .products-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border-light);
+        text-align: center;
+        color: var(--text-dark);
+    }
+
+    .products-table tfoot th {
+        background: var(--primary-light);
+        font-size: 1.1em;
+    }
+
+    /* المعلومات الإضافية */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .info-card {
+        background: var(--bg-light);
+        border-radius: 15px;
+        padding: 20px;
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-3px);
+    }
+
+    .info-card h6 {
+        font-size: 1.1em;
+        font-weight: 700;
+        color: var(--dark-bg);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-card h6 i {
+        color: var(--primary-color);
+    }
+
+    .info-card p {
+        margin: 0;
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
+    /* زر PayPal المحسن */
+    .paypal-button-wrapper {
+        text-align: center;
+        margin: 30px 0 20px;
+    }
+
+    .paypal-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        background: #ffc439;
+        color: #111;
+        border: none;
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(255,196,57,0.3);
+    }
+
+    .paypal-button:hover {
+        background: #f2ba33;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255,196,57,0.4);
+        color: #111;
+    }
+
+    .paypal-button img {
+        width: 30px;
+        height: auto;
+    }
+
+    .payment-note {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .payment-note p {
+        color: var(--text-muted);
+        font-size: 0.9em;
+    }
+
+    /* أزرار التحكم */
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline-secondary-custom {
+        background: white;
+        color: var(--text-muted);
+        border: 2px solid var(--border-light);
+        padding: 12px 30px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-outline-secondary-custom:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateX(5px);
+    }
+
+    .btn-home-custom {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-home-custom:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
+        color: white;
+    }
+
+    /* تحسينات للشاشات الصغيرة */
+    @media (max-width: 768px) {
+        .card-body-payment {
+            padding: 25px;
+        }
+
+        .card-header-success h2 {
+            font-size: 1.4em;
+        }
+
+        .welcome-message h3 {
+            font-size: 1.4em;
+        }
+
+        .products-table th,
+        .products-table td {
+            padding: 8px;
+            font-size: 0.9em;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .paypal-button {
+            padding: 12px 25px;
+            font-size: 1em;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-outline-secondary-custom,
+        .btn-home-custom {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .card-body-payment {
+            padding: 20px;
+        }
+
+        .products-table {
+            overflow-x: auto;
+            display: block;
+        }
+
+        .products-table table {
+            min-width: 400px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <!-- عرض رسائل التنبيه -->
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
+            <i class="bi {% if 'success' in message.tags %}bi-check-circle-fill{% else %}bi-info-circle-fill{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="confirmation-card">
+        <!-- رأس البطاقة -->
+        <div class="card-header-success">
+            <h2>
+                <i class="bi bi-check-circle-fill"></i>
+                تأكيد الطلب
+            </h2>
+        </div>
+        
+        <!-- جسم البطاقة -->
+        <div class="card-body-payment">
+            <!-- أيقونة النجاح -->
+            <div class="success-icon">
+                <span>✅</span>
+            </div>
+            
+            <!-- رسالة ترحيب -->
+            <div class="welcome-message">
+                <h3>مرحباً {{ order.first_name }} {{ order.last_name }}</h3>
+            </div>
+            
+            <!-- معلومات الطلب -->
+            <div class="order-alert">
+                <p>
+                    <i class="bi bi-receipt"></i>
+                    طلبك رقم <strong>#{{ order.id }}</strong> جاهز للدفع
+                </p>
+            </div>
+            
+            <!-- جدول المنتجات -->
+            <div class="products-table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>المنتج</th>
+                            <th>الكمية</th>
+                            <th>السعر</th>
+                            <th>الإجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.price|floatformat:2 }} جنيه</td>
+                            <td>{{ item.get_cost|floatformat:2 }} جنيه</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-active">
+                            <th colspan="3" class="text-start">الإجمالي الكلي:</th>
+                            <th>{{ total|floatformat:2 }} جنيه</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <!-- معلومات إضافية -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <h6>
+                        <i class="bi bi-geo-alt-fill"></i>
+                        عنوان الشحن
+                    </h6>
+                    <p>{{ order.address }}</p>
+                    <p class="mb-0">{{ order.city }}</p>
+                </div>
+                <div class="info-card">
+                    <h6>
+                        <i class="bi bi-telephone-fill"></i>
+                        معلومات الاتصال
+                    </h6>
+                    <p><i class="bi bi-envelope"></i> {{ order.email }}</p>
+                    <p class="mb-0"><i class="bi bi-phone"></i> {{ order.phone }}</p>
+                </div>
+            </div>
+            
+            <!-- زر PayPal -->
+            <div class="paypal-button-wrapper">
+                <a href="{{ paypal_url }}" class="paypal-button">
+                    <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="PayPal">
+                    الدفع عبر PayPal
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div class="payment-note">
+                    <p>
+                        <i class="bi bi-shield-check"></i>
+                        سيتم تحويلك إلى صفحة PayPal الآمنة لإتمام الدفع
+                    </p>
+                </div>
+            </div>
+            
+            <!-- أزرار التحكم -->
+            <div class="action-buttons">
+                <a href="{% url 'orders:order_create' %}" class="btn-outline-secondary-custom">
+                    <i class="bi bi-pencil"></i>
+                    تعديل البيانات
+                </a>
+                <a href="{% url 'products:list' %}" class="btn-home-custom">
+                    <i class="bi bi-house"></i>
+                    العودة للرئيسية
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

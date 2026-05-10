@@ -1,0 +1,122 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+
+# ============================================
+# Python
+# ============================================
+
+# ملفات Python المترجمة
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ملفات البيئة الافتراضية
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ملفات التوزيع
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# ============================================
+# Django
+# ============================================
+
+# قاعدة البيانات
+db.sqlite3
+*.sqlite3
+
+# ملفات السجلات (logs)
+*.log
+logfile.log
+
+# الملفات المرفوعة من المستخدمين
+media/
+uploaded_files/
+
+# ملفات الـ static المجمعة (للإنتاج)
+staticfiles/
+static_collected/
+
+# ملفات الترحيلات (اختياري - بعض المطورين يحذفونها)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# ============================================
+# المتغيرات السرية والبيئة
+# ============================================
+
+# ملفات البيئة
+.env
+.env.local
+.env.production
+.env.staging
+
+# مفاتيح سرية
+secret_key.txt
+key.txt
+*.pem
+
+# ============================================
+# IDE ومحررات النصوص
+# ============================================
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# PyCharm
+.idea/
+*.iml
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ============================================
+# نظام التشغيل
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# ============================================
+# ملفات الاختبارات والتقارير
+# ============================================
+
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+.mypy_cache/
+
+# ============================================
+# ملفات مؤقتة
+# ============================================
+
+*.tmp
+*.temp
+*.bak
+*.backup
+*.cache

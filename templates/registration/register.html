@@ -1,0 +1,485 @@
+<!-- accounts/templates/registration/register.html -->
+{% extends 'base.html' %}
+
+{% block title %}إنشاء حساب - AHM متجر{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* حاوية الفورم */
+    .register-container {
+        max-width: 550px;
+        margin: 50px auto;
+        padding: 0 20px;
+    }
+
+    .register-card {
+        background: white;
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+
+    .register-card:hover {
+        box-shadow: 0 20px 40px rgba(212, 168, 83, 0.1);
+        border-color: var(--primary-light);
+    }
+
+    /* عنوان الفورم */
+    .register-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .register-header h2 {
+        font-size: 2em;
+        color: var(--dark-bg);
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .register-header p {
+        color: var(--text-muted);
+        font-size: 0.95em;
+    }
+
+    .register-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+
+    .register-icon i {
+        font-size: 2.5em;
+        color: var(--primary-color);
+    }
+
+    /* تنسيق الحقول */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--dark-bg);
+        font-size: 0.95em;
+    }
+
+    .form-label i {
+        color: var(--primary-color);
+        margin-left: 8px;
+        width: 20px;
+    }
+
+    .text-danger {
+        color: var(--danger-color);
+        font-size: 1.1em;
+    }
+
+    /* تنسيق حقول الإدخال */
+    .register-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid var(--border-light);
+        border-radius: 12px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .register-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.1);
+    }
+
+    .register-input.is-invalid {
+        border-color: var(--danger-color);
+    }
+
+    /* أخطاء الفورم */
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin-top: 8px;
+    }
+
+    .errorlist li {
+        color: var(--danger-color);
+        font-size: 0.85em;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .errorlist li:before {
+        content: "⚠️";
+        font-size: 0.9em;
+    }
+
+    /* نص المساعدة */
+    .help-text {
+        color: var(--text-muted);
+        font-size: 0.8em;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .help-text:before {
+        content: "💡";
+        font-size: 0.9em;
+    }
+
+    /* زر التسجيل */
+    .btn-register {
+        width: 100%;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
+    }
+
+    .btn-register:active {
+        transform: translateY(0);
+    }
+
+    /* الفاصل */
+    .divider {
+        position: relative;
+        text-align: center;
+        margin: 25px 0;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--border-light);
+    }
+
+    .divider span {
+        position: relative;
+        background: white;
+        padding: 0 15px;
+        color: var(--text-muted);
+        font-size: 0.9em;
+    }
+
+    /* رابط تسجيل الدخول */
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .login-link p {
+        color: var(--text-muted);
+        margin-bottom: 0;
+    }
+
+    .login-link a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--dark-bg);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .login-link a:hover {
+        color: var(--primary-color);
+        transform: translateX(-3px);
+    }
+
+    /* رسائل التنبيه */
+    .alert-message {
+        background: var(--primary-light);
+        border-right: 4px solid var(--primary-color);
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9em;
+        color: var(--dark-bg);
+    }
+
+    .alert-message i {
+        color: var(--primary-color);
+        font-size: 1.2em;
+    }
+
+    /* صفوف مرنة للأسماء */
+    .name-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    /* تحسينات للشاشات الصغيرة */
+    @media (max-width: 576px) {
+        .register-card {
+            padding: 25px;
+        }
+
+        .register-header h2 {
+            font-size: 1.6em;
+        }
+
+        .register-icon {
+            width: 60px;
+            height: 60px;
+        }
+
+        .register-icon i {
+            font-size: 2em;
+        }
+
+        .name-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-card">
+        <!-- أيقونة ورأس الصفحة -->
+        <div class="register-header">
+            <div class="register-icon">
+                <i class="bi bi-person-plus"></i>
+            </div>
+            <h2>إنشاء حساب جديد</h2>
+            <p>انضم إلينا واستمتع بتجربة تسوق مميزة</p>
+        </div>
+
+        <!-- عرض رسائل الخطأ العامة -->
+        {% if form.non_field_errors %}
+            <div class="alert-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {% for error in form.non_field_errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- فورم التسجيل -->
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <!-- صف الأسماء (الأول والأخير) -->
+            <div class="name-row">
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                        <i class="bi bi-person"></i>
+                        الاسم الأول
+                        <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" 
+                           name="first_name" 
+                           class="register-input {% if form.first_name.errors %}is-invalid{% endif %}"
+                           id="{{ form.first_name.id_for_label }}"
+                           placeholder="أدخل اسمك الأول"
+                           value="{{ form.first_name.value|default:'' }}">
+                    {% if form.first_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.first_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                        <i class="bi bi-person"></i>
+                        الاسم الأخير
+                        <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" 
+                           name="last_name" 
+                           class="register-input {% if form.last_name.errors %}is-invalid{% endif %}"
+                           id="{{ form.last_name.id_for_label }}"
+                           placeholder="أدخل اسمك الأخير"
+                           value="{{ form.last_name.value|default:'' }}">
+                    {% if form.last_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.last_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- حقل اسم المستخدم -->
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}" class="form-label">
+                    <i class="bi bi-person-badge"></i>
+                    اسم المستخدم
+                    <span class="text-danger">*</span>
+                </label>
+                <input type="text" 
+                       name="username" 
+                       class="register-input {% if form.username.errors %}is-invalid{% endif %}"
+                       id="{{ form.username.id_for_label }}"
+                       placeholder="أدخل اسم مستخدم"
+                       value="{{ form.username.value|default:'' }}">
+                {% if form.username.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if form.username.help_text %}
+                    <div class="help-text">{{ form.username.help_text|safe }}</div>
+                {% endif %}
+            </div>
+
+            <!-- حقل البريد الإلكتروني -->
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}" class="form-label">
+                    <i class="bi bi-envelope"></i>
+                    البريد الإلكتروني
+                    <span class="text-danger">*</span>
+                </label>
+                <input type="email" 
+                       name="email" 
+                       class="register-input {% if form.email.errors %}is-invalid{% endif %}"
+                       id="{{ form.email.id_for_label }}"
+                       placeholder="example@email.com"
+                       value="{{ form.email.value|default:'' }}">
+                {% if form.email.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.email.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- حقل رقم الهاتف -->
+            <div class="form-group">
+                <label for="{{ form.phone.id_for_label }}" class="form-label">
+                    <i class="bi bi-telephone"></i>
+                    رقم الهاتف
+                </label>
+                <input type="tel" 
+                       name="phone" 
+                       class="register-input {% if form.phone.errors %}is-invalid{% endif %}"
+                       id="{{ form.phone.id_for_label }}"
+                       placeholder="أدخل رقم هاتفك"
+                       value="{{ form.phone.value|default:'' }}">
+                {% if form.phone.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.phone.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- حقل كلمة المرور -->
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}" class="form-label">
+                    <i class="bi bi-lock"></i>
+                    كلمة المرور
+                    <span class="text-danger">*</span>
+                </label>
+                <input type="password" 
+                       name="password1" 
+                       class="register-input {% if form.password1.errors %}is-invalid{% endif %}"
+                       id="{{ form.password1.id_for_label }}"
+                       placeholder="أدخل كلمة المرور">
+                {% if form.password1.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.password1.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if form.password1.help_text %}
+                    <div class="help-text">{{ form.password1.help_text|safe }}</div>
+                {% endif %}
+            </div>
+
+            <!-- حقل تأكيد كلمة المرور -->
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}" class="form-label">
+                    <i class="bi bi-lock-fill"></i>
+                    تأكيد كلمة المرور
+                    <span class="text-danger">*</span>
+                </label>
+                <input type="password" 
+                       name="password2" 
+                       class="register-input {% if form.password2.errors %}is-invalid{% endif %}"
+                       id="{{ form.password2.id_for_label }}"
+                       placeholder="أعد إدخال كلمة المرور">
+                {% if form.password2.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.password2.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <!-- زر التسجيل -->
+            <button type="submit" class="btn-register">
+                <i class="bi bi-person-plus"></i>
+                إنشاء حساب
+                <i class="bi bi-arrow-left"></i>
+            </button>
+        </form>
+
+        <!-- الفاصل -->
+        <div class="divider">
+            <span>أو</span>
+        </div>
+
+        <!-- رابط تسجيل الدخول -->
+        <div class="login-link">
+            <p>
+                لديك حساب بالفعل؟
+                <a href="{% url 'login' %}">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    تسجيل الدخول
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

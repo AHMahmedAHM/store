@@ -1,0 +1,492 @@
+<!-- accounts/templates/registration/profile.html -->
+{% extends 'base.html' %}
+
+{% block title %}ملفي الشخصي - AHM متجر{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* حاوية البروفايل */
+    .profile-container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 0 20px;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+
+    .profile-card:hover {
+        box-shadow: 0 20px 40px rgba(212, 168, 83, 0.1);
+        border-color: var(--primary-light);
+    }
+
+    /* رأس البروفايل */
+    .profile-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        transition: all 0.3s ease;
+    }
+
+    .profile-avatar i {
+        font-size: 3.5em;
+        color: var(--primary-color);
+    }
+
+    .profile-header h3 {
+        font-size: 1.4em;
+        color: var(--dark-bg);
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .profile-header .member-since {
+        color: var(--text-muted);
+        font-size: 0.85em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .profile-header .member-since i {
+        color: var(--primary-color);
+    }
+
+    /* تنسيق الحقول */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--dark-bg);
+        font-size: 0.95em;
+    }
+
+    .form-label i {
+        color: var(--primary-color);
+        margin-left: 8px;
+        width: 20px;
+    }
+
+    .profile-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid var(--border-light);
+        border-radius: 12px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .profile-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.1);
+    }
+
+    .profile-input.is-invalid {
+        border-color: var(--danger-color);
+    }
+
+    .profile-input:read-only {
+        background: var(--bg-light);
+        cursor: not-allowed;
+    }
+
+    /* أخطاء الفورم */
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin-top: 8px;
+    }
+
+    .errorlist li {
+        color: var(--danger-color);
+        font-size: 0.85em;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .errorlist li:before {
+        content: "⚠️";
+        font-size: 0.9em;
+    }
+
+    /* نص المساعدة */
+    .help-text {
+        color: var(--text-muted);
+        font-size: 0.8em;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .help-text:before {
+        content: "💡";
+        font-size: 0.9em;
+    }
+
+    /* زر الحفظ */
+    .btn-save {
+        width: 100%;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(212, 168, 83, 0.3);
+    }
+
+    .btn-save:active {
+        transform: translateY(0);
+    }
+
+    /* الفاصل */
+    .divider {
+        position: relative;
+        text-align: center;
+        margin: 25px 0;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--border-light);
+    }
+
+    .divider span {
+        position: relative;
+        background: white;
+        padding: 0 15px;
+        color: var(--text-muted);
+        font-size: 0.9em;
+    }
+
+    /* أزرار الإجراءات */
+    .action-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .btn-password {
+        background: white;
+        color: var(--warning-color);
+        border: 2px solid var(--warning-color);
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-password:hover {
+        background: var(--warning-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(230, 177, 126, 0.3);
+    }
+
+    .btn-logout {
+        background: white;
+        color: var(--danger-color);
+        border: 2px solid var(--danger-color);
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .btn-logout:hover {
+        background: var(--danger-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+    }
+
+    /* صفوف مرنة للأسماء */
+    .name-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    /* رسائل التنبيه */
+    .alert-success-custom {
+        background: #d4edda;
+        border-right: 4px solid var(--success-color);
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9em;
+        color: #155724;
+    }
+
+    .alert-success-custom i {
+        color: var(--success-color);
+        font-size: 1.2em;
+    }
+
+    /* تحسينات للشاشات الصغيرة */
+    @media (max-width: 576px) {
+        .profile-card {
+            padding: 25px;
+        }
+
+        .profile-avatar {
+            width: 70px;
+            height: 70px;
+        }
+
+        .profile-avatar i {
+            font-size: 2.5em;
+        }
+
+        .profile-header h3 {
+            font-size: 1.2em;
+        }
+
+        .name-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .action-buttons {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <!-- رأس البروفايل -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="bi bi-person-circle"></i>
+            </div>
+            <h3>مرحباً {{ user.get_full_name|default:user.username }}</h3>
+            <div class="member-since">
+                <i class="bi bi-calendar3"></i>
+                <span>عضو منذ: {{ user.date_joined|date:"Y/m/d" }}</span>
+            </div>
+        </div>
+
+        <!-- عرض رسائل النجاح -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-success-custom">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- عرض رسائل الخطأ العامة -->
+        {% if form.non_field_errors %}
+            <div class="alert-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {% for error in form.non_field_errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- فورم تعديل البيانات -->
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <!-- صف الأسماء (الأول والأخير) -->
+            <div class="name-row">
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                        <i class="bi bi-person"></i>
+                        الاسم الأول
+                    </label>
+                    <input type="text" 
+                           name="first_name" 
+                           class="profile-input {% if form.first_name.errors %}is-invalid{% endif %}"
+                           id="{{ form.first_name.id_for_label }}"
+                           placeholder="أدخل اسمك الأول"
+                           value="{{ form.first_name.value|default:'' }}">
+                    {% if form.first_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.first_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                        <i class="bi bi-person"></i>
+                        الاسم الأخير
+                    </label>
+                    <input type="text" 
+                           name="last_name" 
+                           class="profile-input {% if form.last_name.errors %}is-invalid{% endif %}"
+                           id="{{ form.last_name.id_for_label }}"
+                           placeholder="أدخل اسمك الأخير"
+                           value="{{ form.last_name.value|default:'' }}">
+                    {% if form.last_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.last_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- حقل اسم المستخدم -->
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}" class="form-label">
+                    <i class="bi bi-person-badge"></i>
+                    اسم المستخدم
+                </label>
+                <input type="text" 
+                       name="username" 
+                       class="profile-input {% if form.username.errors %}is-invalid{% endif %}"
+                       id="{{ form.username.id_for_label }}"
+                       placeholder="أدخل اسم مستخدم"
+                       value="{{ form.username.value|default:'' }}">
+                {% if form.username.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if form.username.help_text %}
+                    <div class="help-text">{{ form.username.help_text|safe }}</div>
+                {% endif %}
+            </div>
+
+            <!-- حقل البريد الإلكتروني -->
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}" class="form-label">
+                    <i class="bi bi-envelope"></i>
+                    البريد الإلكتروني
+                </label>
+                <input type="email" 
+                       name="email" 
+                       class="profile-input {% if form.email.errors %}is-invalid{% endif %}"
+                       id="{{ form.email.id_for_label }}"
+                       placeholder="example@email.com"
+                       value="{{ form.email.value|default:'' }}">
+                {% if form.email.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.email.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- حقل رقم الهاتف -->
+            <div class="form-group">
+                <label for="{{ form.phone.id_for_label }}" class="form-label">
+                    <i class="bi bi-telephone"></i>
+                    رقم الهاتف
+                </label>
+                <input type="tel" 
+                       name="phone" 
+                       class="profile-input {% if form.phone.errors %}is-invalid{% endif %}"
+                       id="{{ form.phone.id_for_label }}"
+                       placeholder="أدخل رقم هاتفك"
+                       value="{{ form.phone.value|default:'' }}">
+                {% if form.phone.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.phone.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <!-- زر الحفظ -->
+            <button type="submit" class="btn-save">
+                <i class="bi bi-save"></i>
+                حفظ التغييرات
+                <i class="bi bi-arrow-left"></i>
+            </button>
+        </form>
+
+        <!-- الفاصل -->
+        <div class="divider">
+            <span>إعدادات الحساب</span>
+        </div>
+
+        <!-- أزرار الإجراءات -->
+        <div class="action-buttons">
+            <a href="{% url 'password_change' %}" class="btn-password">
+                <i class="bi bi-key"></i>
+                تغيير كلمة المرور
+            </a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    تسجيل الخروج
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
