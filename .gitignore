@@ -120,3 +120,7 @@ htmlcov/
 *.bak
 *.backup
 *.cache
+bin/
+pyvenv.cfg
+__pycache__/
+*.pyc
