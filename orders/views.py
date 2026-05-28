@@ -15,7 +15,7 @@ from django.core.mail import send_mail
 
 
 paypalrestsdk.configure({
-    'mode' : settings.PAYPAL_MODE, 
+    'mode' : 'sandbox', 
     'client_id' : settings.PAYPAL_CLIENT_ID, 
     'client_secret' : settings.PAYPAL_CLIENT_SECRET,
 })

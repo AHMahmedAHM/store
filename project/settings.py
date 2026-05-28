@@ -26,8 +26,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost, 127.0.0.1').split(',')
-
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # Application definition
 
@@ -46,7 +45,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     
     #others 
-    #'django_filters',
+    'django_filters',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
