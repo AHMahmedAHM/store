@@ -33,6 +33,7 @@ urlpatterns = [
 
     #api 
     path('api/products/', include('products.api_urls')),
+    path('api/accounts/', include('accounts.api_urls')),
     
 ]
 

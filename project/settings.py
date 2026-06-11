@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os 
 from decouple import config
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,6 +48,8 @@ INSTALLED_APPS = [
     #others 
     'django_filters',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -119,6 +122,61 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+
+
+# ============================================
+# إعدادات REST Framework
+# ============================================
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # نضيف JWT كمصادقة أساسية
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # نحتفظ بـ Session للمتصفح (اختياري)
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # افتراضياً، أي API يحتاج تسجيل دخول
+    ]
+}
+
+
+# ============================================
+# إعدادات JWT
+# ============================================
+
+SIMPLE_JWT = {
+    # مدة صلاحية Access Token (30 دقيقة)
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    
+    # مدة صلاحية Refresh Token (7 أيام)
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    
+    # هل نسمح بتجديد Refresh Token؟
+    'ROTATE_REFRESH_TOKENS': True,
+    
+    # هل نضيف Refresh Token القديم إلى القائمة السوداء؟
+    'BLACKLIST_AFTER_ROTATION': True, 
+    
+    # خوارزمية التشفير
+    'ALGORITHM': 'HS256',
+    
+    # المفتاح السري للتوقيع (يستخدم SECRET_KEY من Django)
+    'SIGNING_KEY': SECRET_KEY,
+    
+    # كيف يرسل العميل الـ Token
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    
+    # حقل اسم المستخدم في نموذج User
+    'USER_ID_FIELD': 'id',
+    
+    # حقل معرف المستخدم في الـ Token
+    'USER_ID_CLAIM': 'user_id',
+}
+
+
+
 
 #Authentication
 LOGIN_URL ='login'
