@@ -4,7 +4,9 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 
 
-class ApiRegisterSerializer(serializers.ModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer):
+    '''RegisterSerializer use model User and in it required username, email, password, confirm_password '''
+
     confirm_password = serializers.CharField(min_length=8, write_only=True)
 
     class Meta :
@@ -59,7 +61,9 @@ class ApiRegisterSerializer(serializers.ModelSerializer):
 
 
 
-class ApiLoginSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer):
+    """LoginSerializer has required fields :username,and password """
+
     username = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True, required=True )
 
@@ -67,7 +71,8 @@ class ApiLoginSerializer(serializers.Serializer):
 
 
 
-class ApiProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
+    """Profile Serializer use User model and has fields:first_name, last_name, username, email, also username is read_only """
 
     class Meta :
         model = User 

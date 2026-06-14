@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework import status 
 from .serializers import ProductSerializer
@@ -7,6 +7,7 @@ from .models import Product
 from django.views.decorators.csrf import csrf_exempt
 
 @api_view(['GET'])
+@permission_classes([AllowAny]) #because default is IsAuthenticated
 def api_products_list(request):
     "api view to show all available products "
     # get products

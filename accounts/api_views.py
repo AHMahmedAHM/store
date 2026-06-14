@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import login, authenticate
-from .serializers import ApiRegisterSerializer, ApiLoginSerializer, ApiProfileSerializer
+from .serializers import RegisterSerializer, LoginSerializer, ProfileSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -12,7 +12,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def api_register(request):
-    serializer  = ApiRegisterSerializer(data=request.data)
+    """ api_register for new user and user RegisterSerializer"""
+
+    serializer  = RegisterSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()##هنا تستدعي create  او لو ModelSerializer اذن تلقائي
         login(request, user)
@@ -40,7 +42,9 @@ def api_register(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def api_login(request):##يحتاج هذه الدالة ٧ ايام 
-    serializer = ApiLoginSerializer(data=request.data)
+    """api_login not for a new user and user LoginSerializer and the period continue 7 days """
+
+    serializer = LoginSerializer(data=request.data)
     if serializer.is_valid(): ##لن احفظ شئ لانه بالفعل محفوظ في قاعدة البيانات مجرد التاكد
         username = serializer.validated_data.get('username')
         password = serializer.validated_data.get('password') ##serializer.validated_data for data ,,,,, for user  serializer.insatnce
@@ -71,6 +75,8 @@ def api_login(request):##يحتاج هذه الدالة ٧ ايام
 @api_view(['POST'])
 @permission_classes([AllowAny]) #استخدمت لاي حد لان الدالة سوف تعمل في حالة انتهي تسجيل الدخول العادي
 def api_refresh_token(request):##للحصول علي access_token جديد
+    """api_refresh_token is to get access token that continue 30 minutes """
+
     refresh = request.data.get('refresh_token', None)
 
     if refresh is None :
@@ -97,9 +103,10 @@ def api_refresh_token(request):##للحصول علي access_token جديد
 @api_view(['GET', 'PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def api_profile(request):#للعرض والتحديق الجزئي والكلي
+    """api_profile to GET, PUT, PATCH user's profile """
 
     if request.method =='GET':
-        serializer = ApiProfileSerializer(instance =request.user)
+        serializer = ProfileSerializer(instance =request.user)
         return Response(serializer.data,status=200)
     
     is_partial = request.method =='PATCH'
@@ -126,6 +133,8 @@ def api_profile(request):#للعرض والتحديق الجزئي والكلي
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def api_logout(request):## يتم وضع ال token في  blacklist
+    """api_logout for expery refresh_token and log user out """
+
     refresh = request.data.get('refresh_token',None)
 
     if refresh is None :

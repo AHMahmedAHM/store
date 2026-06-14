@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +131,7 @@ USE_TZ = True
 # ============================================
 
 REST_FRAMEWORK = {
+
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # نضيف JWT كمصادقة أساسية
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -138,7 +140,10 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',  # افتراضياً، أي API يحتاج تسجيل دخول
-    ]
+    ],
+
+    'DEFAULT_SCHEMA_CLASS' : 'drf_spectacular.openapi.AutoSchema' ,
+
 }
 
 
@@ -173,6 +178,19 @@ SIMPLE_JWT = {
     
     # حقل معرف المستخدم في الـ Token
     'USER_ID_CLAIM': 'user_id',
+}
+
+
+
+# إعدادات التوثيق الخاصة بـ drf-spectacular
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'AHM store API',
+    'DESCRIPTION': 'متجر يقوم ببيع منتجات ويمكن للشركات عرض منتجاتهم وكل هذا بطريقة آمنة',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # هذا السطر مهم جداً ليظهر زر "Authorize" وقفل الحماية الخاص بـ JWT في Swagger
+    'SECURITY': [{'BearerAuth': []}],
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 
