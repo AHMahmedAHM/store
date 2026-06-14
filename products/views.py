@@ -1,4 +1,4 @@
-from django.shortcuts import render , get_object_or_404
+from django.shortcuts import render , get_object_or_404  #, redirect
 from .models import Product
 from .filters import ProductFilter
 from django.core.paginator import Paginator 
@@ -19,7 +19,7 @@ def products_list(request):
     
     # 3. ندي الصفحة لل paginator 
     products = paginator.get_page(page_number) # get_page >>> try, except     
-   #يوجد طرق اخري يدوية وlistview 
+    #يوجد طرق اخري يدوية وlistview 
 
 
     context = {
@@ -36,9 +36,15 @@ def products_list(request):
     
 def product_details(request, slug):
     ''' view function to show every product '''
+    from django.contrib import messages
     
+    # quality note:  if ForeignKey >> request.user.role.first().name >because foreignkey عندما نقول  .role   يبقي روحنا للكلاس التاني وفي الاخير يبقي لديه كثير
+    #for test only
+    #if request.user.role.name != 'admin':
+        #messages.error(request, 'غير مسموح لك')
+        #return redirect('products:list')
     product = get_object_or_404(Product, slug=slug , available=True)
-             
+
     related_products = Product.objects.filter(available=True).exclude(id=product.id)[:4]        
     
     context = {

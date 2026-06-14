@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout #authenticate
 from django.contrib import messages
 from .forms import CustomRegisterForm, CustomLoginForm, UserProfileForm
+from .models import Role
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -24,27 +25,33 @@ from django.contrib.auth.decorators import login_required
 ################
 
 def register(request):
-   # if  request.user.is_authenticated:
-#        messages.warning(request, 'هذا المستخدم موجود بالفعل')
-#        return redirect('login')
+    
     if request.method=='POST':
-        if  request.user.is_authenticated: 
-                 messages.warning(request, 'هذا المستخدم موجود بالفعل')
-                 return redirect('login')
+
         form = CustomRegisterForm(request.POST) #كتير عملت Meta اذن ياخد كله
         if form.is_valid():
             user =form.save()
             login(request, user)
+            #اعمل object الاول 
+            Role.objects.create(name='customer', user=user)
+            #user.role.name ='customer'#####دي طريقة تغيير لو ال object موجود 
             messages.success(request, 'تم بنجاح تسجيل مستخدم جديد')
             return redirect('products:list')
+
         else:
-            messages.error(request,'البيانات غير صحيحة من فضلك ادخل بيانات صحيحة' )         
-    else:
-        form =CustomRegisterForm()
-    return render(request, 'registration/register.html', {'form' : form})    
-   
+            messages.error(request,'البيانات غير صحيحة من فضلك ادخل بيانات صحيحة ' )         
     
-   
+    else:
+        if  request.user.is_authenticated: 
+            messages.warning(request, 'انت مسجل دخول بالفعل')
+            return redirect('login')
+
+        form =CustomRegisterForm()
+
+    return render(request, 'registration/register.html', {'form' : form})    
+
+
+
 def login_view(request):
     if request.method=='POST':
         form = CustomLoginForm(request, data=request.POST)#فورم قليل اذن no Meta  اذن نعمل data

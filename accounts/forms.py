@@ -25,8 +25,8 @@ class CustomRegisterForm(UserCreationForm):
         phone = self.cleaned_data.get('phone')
         if phone and len(phone) != 11:
             raise forms.ValidationError('ادخل رقم هاتف مكون من 11 رقم ')
-        if phone and phone[0:1] != '01':
-            raise forms.ValidationError('لابد ان يبدأ رقم الهانف ب "01"  ')
+        #if phone and phone[0:1] != '01':
+            #raise forms.ValidationError('لابد ان يبدأ رقم الهانف ب "01"  ')
         return phone
         
     def save(self, commit=True,*args,**kwargs ):
@@ -34,7 +34,8 @@ class CustomRegisterForm(UserCreationForm):
         #phone for profile
         if commit:
             user.save()
-        #وضع phone ما يوضع يدوي يحفظ يدوي                                                                      
+            #وضع phone ما يوضع يدوي يحفظ يدوي       
+            return user                                                                
     
     class Meta :
         model = User
