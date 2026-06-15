@@ -18,13 +18,16 @@ def api_register(request):
     if serializer.is_valid():
         user = serializer.save()##هنا تستدعي create  او لو ModelSerializer اذن تلقائي
         login(request, user)
-        refresh_token = RefreshToken.for_user(user)
+        refresh = RefreshToken.for_user(user)
+        refresh['role'] =user.role.name
+        refresh.access_token['role'] = user.role.name
+
         return Response({
             'success' : True,
             'message' : 'تم انشاء مستخدم جديد بنجاح',
             'serializer' : serializer.data ,
-            'refresh_token' : str(refresh_token), 
-            'access_token' : str(refresh_token.access_token),
+            'refresh_token' : str(refresh), 
+            'access_token' : str(refresh.access_token),
 
         }, status=status.HTTP_201_CREATED)
     
@@ -55,6 +58,10 @@ def api_login(request):##يحتاج هذه الدالة ٧ ايام
         login(request, user)
         
         refresh = RefreshToken.for_user(user)
+        refresh['role'] =user.role.name
+        refresh.access_token['role'] = user.role.name
+
+
         
         return Response({
             'success' : True, 
@@ -84,6 +91,11 @@ def api_refresh_token(request):##للحصول علي access_token جديد
     
     try :
         refresh = RefreshToken(refresh) ##حتي يتاكد منه
+        user = request.user
+        refresh['role'] =user.role.name
+        refresh.access_token['role'] = user.role.name
+
+
     except :
         return Response({'message':"refresh_token غير صالح من فضلك اعد تسجيل الدخول"}, status=status.HTTP_400_BAD_REQUEST)
     
